@@ -1,0 +1,50 @@
+version: '3.9'
+
+volumes:
+  db_data:
+  pfa_data:
+
+services:
+
+  # nginx:
+  #   build: ./nginx
+  #   container_name: nginx
+  #   ports:
+  #     - "80:80"
+
+  postgres:
+    image: postgres:15
+    environment:  
+      POSTGRES_DB: ${PFA_DB_NAME}                
+      POSTGRES_USER: ${PFA_POSTGRES_USER}             
+      POSTGRES_PASSWORD: ${PFA_POSTGRES_PASSWORD}            
+    volumes:
+      - db_data:/var/lib/postgresql/data
+
+  pfa:
+    build: ./PFA
+    container_name: pfa
+    environment:
+      DB_USER: ${PFA_DB_USER}            
+      DB_PASSWORD: ${PFA_DB_PASSWORD}          
+      DB_HOST: ${PFA_DB_HOST}            
+      DB_PORT: 5432            
+      DB_NAME: ${PFA_DB_NAME}            
+    ports:
+      - "8000:8000"
+    depends_on:
+      - postgres
+    volumes:
+      - ./PFA/alembic/versions:/app/alembic/versions
+
+  pfa_front:
+    build: ./PFA_FRONT
+    container_name: pfa_front
+    ports:
+      - "3000:3000"
+    depends_on:
+      - pfa
+
+
+
+
