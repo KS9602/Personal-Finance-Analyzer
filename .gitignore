@@ -233,7 +233,7 @@ PFA_FRONT/pyvenv.cfg
 
 .streamlit/secrets.toml
 koncept.txt
-wiedza.txt
+wiedza*
 xxx.txt
 PFA/uploads/
 .env

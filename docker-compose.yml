@@ -1,23 +1,64 @@
-version: '3.9'
-
 volumes:
   db_data:
-  pfa_data:
+  keycloak_data:
+
+networks:
+  backend:
+    internal: true
+  outbound:
+    internal: false
 
 services:
 
-  # nginx:
-  #   build: ./nginx
-  #   container_name: nginx
-  #   ports:
-  #     - "80:80"
+  nginx:
+    build: ./nginx
+    container_name: nginx
+    ports:
+      - "80:80"
+    networks:
+      - outbound
+      - backend
+
+  redis:
+    image: redis:7
+    container_name: redis
+    ports:
+      - "6379:6379"
+    networks:
+      - backend
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:25.0.1
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+      DB_VENDOR: POSTGRES
+      DB_ADDR: postgres
+      DB_DATABASE: keycloak
+      DB_USER: keycloak
+      DB_PASSWORD: keycloak
+
+      KC_PROXY: edge
+      KC_HOSTNAME_STRICT: "false"
+      # KC_HTTP_RELATIVE_PATH: /keycloak
+    depends_on:
+      - postgres
+    command:
+      - start
+    volumes:
+      - keycloak_data:/opt/keycloak/data
+    ports:
+      - "9000:8080"
+    networks:
+      - outbound
+      - backend
 
   postgres:
     image: postgres:15
     environment:  
       POSTGRES_DB: ${PFA_DB_NAME}                
-      POSTGRES_USER: ${PFA_POSTGRES_USER}             
-      POSTGRES_PASSWORD: ${PFA_POSTGRES_PASSWORD}            
+      POSTGRES_USER: ${PFA_DB_USER}             
+      POSTGRES_PASSWORD: ${PFA_DB_PASSWORD}            
     volumes:
       - db_data:/var/lib/postgresql/data
 
@@ -34,17 +75,26 @@ services:
       - "8000:8000"
     depends_on:
       - postgres
+      - redis
     volumes:
       - ./PFA/alembic/versions:/app/alembic/versions
+    networks:
+      - outbound
+      - backend
 
   pfa_front:
     build: ./PFA_FRONT
     container_name: pfa_front
+    environment:
+      - STREAMLIT_SERVER_ENABLECORS=false
+      - STREAMLIT_SERVER_ENABLE_XSRF_PROTECTION=false
     ports:
       - "3000:3000"
     depends_on:
       - pfa
-
+    networks:
+      - outbound
+      - backend
 
 
 
