@@ -11,7 +11,7 @@ networks:
 services:
 
   nginx:
-    build: ./nginx
+    build: ./PFA_FRONTEND
     container_name: nginx
     ports:
       - "80:80"
@@ -61,6 +61,8 @@ services:
       POSTGRES_PASSWORD: ${PFA_DB_PASSWORD}            
     volumes:
       - db_data:/var/lib/postgresql/data
+    networks:
+      - backend
 
   pfa:
     build: ./PFA_BACKEND
@@ -78,24 +80,8 @@ services:
       - postgres
       - redis
     volumes:
-      - ./PFA/alembic/versions:/app/alembic/versions
+      - ./PFA_BACKEND:/app
     networks:
       - outbound
       - backend
-
-  pfa_front:
-    build: ./PFA_FRONT
-    container_name: pfa_front
-    environment:
-      - STREAMLIT_SERVER_ENABLECORS=false
-      - STREAMLIT_SERVER_ENABLE_XSRF_PROTECTION=false
-    ports:
-      - "3000:3000"
-    depends_on:
-      - pfa
-    networks:
-      - outbound
-      - backend
-
-
 

@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Błąd aplikacji</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #121212;
+            color: #e0e0e0;
+            font-family: "Segoe UI", sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .error-container {
+            text-align: center;
+            background: #1f1f1f;
+            padding: 50px;
+            border-radius: 12px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.6);
+            max-width: 500px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-bottom: 10px;
+            color: #ff4c4c;
+        }
+
+        p {
+            margin-bottom: 25px;
+            font-size: 1.1rem;
+            color: #aaa;
+        }
+
+        .btn {
+            background-color: #5e5eff;
+            color: white;
+            padding: 12px 20px;
+            text-decoration: none;
+            border-radius: 6px;
+            transition: 0.2s;
+        }
+
+        .btn:hover {
+            background-color: #7a7aff;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <h1>Ups!</h1>
+        <p>Wystąpił błąd podczas przetwarzania żądania.</p>
+        <a href="/" class="btn">Wróć na stronę główną</a>
+    </div>
+</body>
+</html>

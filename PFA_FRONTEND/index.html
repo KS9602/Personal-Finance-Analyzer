@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>PFA App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+    <header class="navbar">
+        <div class="logo">PFA</div>
+        <div class="auth-buttons">
+            <button id="loginBtn" class="btn primary">Zaloguj</button>
+            <button id="registerBtn" class="btn secondary">Rejestracja</button>
+            <button id="logoutBtn" class="btn danger">Wyloguj</button>
+        </div>
+    </header>
+
+    <main class="container">
+
+        <section class="card">
+            <h2>Formularz demo</h2>
+
+            <form id="demoForm">
+                <div class="form-group">
+                    <label>Tekst</label>
+                    <input type="text" name="inputText" placeholder="Wpisz coś..." required>
+                </div>
+
+                <div class="form-group">
+                    <label>Upload pliku</label>
+                    <input type="file" name="fileUpload">
+                </div>
+
+                <button type="submit" class="btn primary full">Wyślij</button>
+            </form>
+        </section>
+
+        <section class="card">
+            <h2>Wykresy</h2>
+            <div id="chartsContainer" class="chart-placeholder">
+                Brak danych
+            </div>
+        </section>
+
+    </main>
+
+    <script src="index.js"></script>
+</body>
+</html>
