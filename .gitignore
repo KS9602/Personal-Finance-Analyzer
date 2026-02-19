@@ -214,16 +214,16 @@ __marimo__/
 
 # Streamlit
 .idea/
-PFA/.idea/
+PFA_BACKEND/.idea/
 PFA_FRONT/.idea/
 
 # virtualenv
 venv/
 .env/
-PFA/Include/
-PFA/Scripts/
-PFA/Lib/
-PFA/pyvenv.cfg
+PFA_BACKEND/Include/
+PFA_BACKEND/Scripts/
+PFA_BACKEND/Lib/
+PFA_BACKEND/pyvenv.cfg
 PFA_FRONT/Include/
 PFA_FRONT/Scripts/
 PFA_FRONT/Lib/
@@ -235,5 +235,5 @@ PFA_FRONT/pyvenv.cfg
 koncept.txt
 wiedza*
 xxx.txt
-PFA/uploads/
+PFA_BACKEND/uploads/
 .env

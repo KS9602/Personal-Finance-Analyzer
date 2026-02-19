@@ -1,3 +1,6 @@
+import streamlit as st
+from streamlit_cookies_controller import CookieController
+import pandas as pd
 from urllib.parse import urlencode
 import hashlib
 import os
@@ -5,10 +8,9 @@ import base64
 import httpx
 import asyncio
 
-
 KEYCLOAK_URL = "http://localhost:9000"
 REALM = "PFA"
-CLIENT_ID = "PFA_FRONTEND"
+CLIENT_ID = "pfa_frontend"
 REDIRECT_URI = "http://localhost:3000"
 
 
@@ -22,9 +24,22 @@ def generate_code_challenge(verifier: str):
     return base64.urlsafe_b64encode(digest).rstrip(b"=").decode("utf-8")
 
 
-def get_login_url():
+def get_login_url(controller):
     code_verifier = generate_code_verifier()
     controller.set("kc_pkce_verifier",code_verifier)
+    print("XXXXXXXXXXXXXXXXXXXXXXX")
+    print("XXXXXXXXXXXXXXXXXXXXXXX")
+    print("XXXXXXXXXXXXXXXXXXXXXXX")
+    print("XXXXXXXXXXXXXXXXXXXXXXX")
+    print("XXXXXXXXXXXXXXXXXXXXXXX")
+    print(f"XXXXXXXXXXXXXXXXXXXXXXX {code_verifier}")
+    print("XXXXXXXXXXXXXXXXXXXXXXX")
+    print("XXXXXXXXXXXXXXXXXXXXXXX")
+    print("XXXXXXXXXXXXXXXXXXXXXXX")
+    print("XXXXXXXXXXXXXXXXXXXXXXX")
+    print("XXXXXXXXXXXXXXXXXXXXXXX")
+    print("XXXXXXXXXXXXXXXXXXXXXXX")
+    # controller.set("logged_in_process",True)
     code_challenge = generate_code_challenge(code_verifier)
 
     params = {
@@ -38,13 +53,6 @@ def get_login_url():
     url = f"{KEYCLOAK_URL}/realms/{REALM}/protocol/openid-connect/auth?{urlencode(params)}"
     return url
 
-async def get_request():
-    async with httpx.AsyncClient() as client:
-        resp = await client.get(
-            "http://pfa:8000/login",
-            cookies=st.session_state.get("cookies", {})
-        )
-        return resp.json()
 
 async def post_request(data):
     async with httpx.AsyncClient() as client:

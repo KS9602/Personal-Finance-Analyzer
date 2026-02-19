@@ -63,14 +63,15 @@ services:
       - db_data:/var/lib/postgresql/data
 
   pfa:
-    build: ./PFA
+    build: ./PFA_BACKEND
     container_name: pfa
     environment:
       DB_USER: ${PFA_DB_USER}            
       DB_PASSWORD: ${PFA_DB_PASSWORD}          
       DB_HOST: ${PFA_DB_HOST}            
       DB_PORT: 5432            
-      DB_NAME: ${PFA_DB_NAME}            
+      DB_NAME: ${PFA_DB_NAME}        
+      PFA_BACKEND_SECRET: ${PFA_BACKEND_SECRET}    
     ports:
       - "8000:8000"
     depends_on:
