@@ -1,18 +1,11 @@
 from sqlalchemy import select
 
-from app.models.user import User
+from app.models.models import Users
+from app.repositories.base_repository import BaseRepository
 
-class UsersRepository:
-    def __init__(self, db):
-        self.db = db
+class UsersRepository(BaseRepository[Users]):
+    model = Users
 
-    async def get_by_kc_id(self, sub: str) -> User | None:
-        result = await self.db.execute(select(User).where(User.keycloak_id == sub))
+    async def get_by_kc_id(self, sub: str) -> Users | None:
+        result = await self.session.execute(select(Users).where(Users.keycloak_id == sub))
         return result.scalar_one_or_none()
-
-    async def create_user(self, sub: str) -> User | None:
-        user = User(keycloak_id = sub)
-        self.db.add(user)
-        await self.db.commit()
-        await self.db.refresh(user)
-        return user

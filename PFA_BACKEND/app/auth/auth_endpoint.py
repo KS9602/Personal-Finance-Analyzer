@@ -38,10 +38,10 @@ log = logging.getLogger(__name__)
 auth_router = AuthApiRouter(prefix="/auth")
 
 
-@auth_router.get("/is_logged")
-@public
-async def is_logged(request: Request, session_id: str = Cookie(...)):
-    return {"authenticated": True} if session_id else {"authenticated": False}
+@auth_router.get("/me")
+@authenticated
+async def me(session_id: str = Cookie(...)):
+    return {"authenticated": bool(session_id)}
 
 
 @auth_router.get("/login", response_class=RedirectResponse)
