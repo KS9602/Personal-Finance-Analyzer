@@ -16,4 +16,5 @@ class UsersService:
             return user
         else:
             log.info(f"User doesnt exist, creating")
+            user = Users(keycloak_id=sub)
             return await self.users_repository.add(user)

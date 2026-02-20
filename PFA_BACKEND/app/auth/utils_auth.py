@@ -1,16 +1,17 @@
 import uuid
 from typing import Dict, Any
 from fastapi.routing import APIRoute
-from fastapi import APIRouter, Request
+from fastapi import APIRouter, Request, Depends
 from fastapi.responses import RedirectResponse
 import jwt
 import os
 import base64
 import hashlib
 
-from app.config import settings
-from app.utils.redis_utils import get_tokens_by_session_redis, save_session_redis
+from app.core.config import settings
 from app.exceptions.exceptions import AuthorizationException
+from app.core.redis_service import RedisService
+from app.core.dependencies import get_redis_service, get_redis
 
 import logging
 
@@ -28,6 +29,7 @@ class AuthApiRoute(APIRoute):
         original_handler = super().get_route_handler()
 
         async def custom_route_handler(request: Request):
+            redis = get_redis_service(request.app.state.redis)
             endpoint = self.endpoint
             auth_mode = getattr(endpoint, "auth_mode")
             session_id = request.cookies.get("session_id")
@@ -36,7 +38,7 @@ class AuthApiRoute(APIRoute):
             if not auth_mode:
                 return RedirectResponse(settings.PFA_FRONTEND_REDIRECT_URI)
             if session_id:
-                tokens = await get_tokens_by_session_redis(session_id)
+                tokens = await redis.get_tokens_by_session_redis(session_id)
             if auth_mode == "public":
                 return await original_handler(request)
             if auth_mode == "anonymous_only":
@@ -53,7 +55,7 @@ class AuthApiRoute(APIRoute):
 
         return custom_route_handler
 
-async def save_session(result: Dict[str, Any]) -> int:
+async def save_session(redis : RedisService, result: Dict[str, Any]) -> int:
     log.info("Zapisuje tokeny")
     session_id = str(uuid.uuid4())
     tokens_with_id = {
@@ -61,7 +63,7 @@ async def save_session(result: Dict[str, Any]) -> int:
         "access_token": result.get("access_token"),
         "refresh_token": result.get("refresh_token")
     }
-    await save_session_redis(session_id,tokens_with_id)
+    await redis.save_session_redis(session_id,tokens_with_id)
 
     return session_id
 

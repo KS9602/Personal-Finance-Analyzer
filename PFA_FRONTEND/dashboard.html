@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <title>Dashboard – Wydatki</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="dashboard.css">
+</head>
+<body>
+
+<header class="navbar">
+    <h1><a href="/">Home</a></h1>
+    <button id="logoutBtn" class="btn danger">Wyloguj</button>
+</header>
+
+<main class="container">
+
+    <section class="card">
+        <h2>Dodaj wydatek</h2>
+
+        <form id="expenseForm">
+            <div class="form-row">
+                <label>Cena</label>
+                <input type="number" step="0.01" id="amount" required>
+            </div>
+
+            <div class="form-row">
+                <label>Data</label>
+                <input type="date" id="date" required>
+            </div>
+
+            <div class="form-row">
+                <label>Kategoria</label>
+                <select id="category">
+                    <option>Jedzenie</option>
+                    <option>Transport</option>
+                    <option>Rozrywka</option>
+                    <option>Rachunki</option>
+                    <option>Inne</option>
+                </select>
+            </div>
+
+            <div class="form-row">
+                <label>Opis</label>
+                <input type="text" id="description" placeholder="Opcjonalnie">
+            </div>
+
+            <button type="submit" class="btn primary full">Dodaj</button>
+        </form>
+    </section>
+
+    <section class="card">
+        <h2>Twoje wydatki</h2>
+        <div class="summary">
+            Suma: <span id="totalAmount">0</span> zł
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th>Data</th>
+                    <th>Kategoria</th>
+                    <th>Opis</th>
+                    <th>Cena</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="expensesTable"></tbody>
+        </table>
+    </section>
+
+</main>
+
+<script src="dashboard.js"></script>
+</body>
+</html>

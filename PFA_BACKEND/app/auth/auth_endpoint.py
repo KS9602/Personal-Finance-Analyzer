@@ -1,20 +1,13 @@
-from fastapi import Response, Depends, Cookie, Request
+from fastapi import Response, Depends, Cookie
 from fastapi.responses import RedirectResponse
 import httpx
 import logging
 import uuid
-import os
-import hashlib
-import base64
 from urllib.parse import urlencode
-import jwt
 
-
-from app.services.users_service import UsersService
-from app.utils.dependencies import get_users_service
+from app.core.dependencies import get_users_service, get_redis_service
 from app.exceptions.exceptions import AuthorizationException
-from app.auth.schemas import LoginData
-from app.config import settings
+from app.core.config import settings
 from app.auth.utils_auth import (
     save_session,
     public,
@@ -25,12 +18,8 @@ from app.auth.utils_auth import (
     generate_code_verifier,
     generate_code_challenge
 )
-from app.utils.redis_utils import (
-    save_state_code_verifier_redis,
-    get_code_verifier_by_state_redis,
-    get_tokens_by_session_redis,
-    delete_tokens_redis
-)
+from app.core.redis_service import RedisService
+
 
 
 log = logging.getLogger(__name__)
@@ -46,13 +35,13 @@ async def me(session_id: str = Cookie(...)):
 
 @auth_router.get("/login", response_class=RedirectResponse)
 @anonymous_only
-async def login(response: Response):
+async def login(redis: RedisService = Depends(get_redis_service)):
 
     state = str(uuid.uuid4())
     code_verifier = generate_code_verifier()
     code_challenge = generate_code_challenge(code_verifier)
 
-    await save_state_code_verifier_redis(state,code_verifier)
+    await redis.save_state_code_verifier_redis(state,code_verifier)
 
     params = {
         "client_id": settings.PFA_BACKEND_CLIENT_ID,
@@ -74,11 +63,12 @@ async def login(response: Response):
 async def callback(
         state: str,
         code: str,
-        users_service  = Depends(get_users_service)
+        users_service  = Depends(get_users_service),
+        redis: RedisService = Depends(get_redis_service)
 ):
     log.debug(f"CALBACK {state}")
 
-    code_verifier = await get_code_verifier_by_state_redis(state)
+    code_verifier = await redis.get_code_verifier_by_state_redis(state)
     log.debug(f"code_verifiercode_verifier {code_verifier}")
     if not code_verifier:
         raise AuthorizationException(status_code=400, detail="Missing PKCE")
@@ -107,7 +97,7 @@ async def callback(
     if not sub:
         raise AuthorizationException(status_code=401, detail="Missing sub")
     user = await users_service.get_if_exist_or_create(sub)
-    session_id = await save_session(result.json())
+    session_id = await save_session(redis,result.json())
 
     response = RedirectResponse(url=settings.PFA_FRONTEND_REDIRECT_URI)
     response.set_cookie(
@@ -124,14 +114,18 @@ async def callback(
 
 @auth_router.get("/logout", response_class=RedirectResponse)
 @authenticated
-async def logout(session_id: str = Cookie(...)):
-    token_data = await get_tokens_by_session_redis(session_id)
+async def logout(
+        session_id: str = Cookie(...),
+        redis: RedisService = Depends(get_redis_service)
+):
+
+    token_data = await redis.get_tokens_by_session_redis(session_id)
     if not token_data:
         log.info("Invalid session_id")
         raise AuthorizationException(status_code=400, detail="Invalid session_id")
     id_token = token_data.get("id_token")
     response = RedirectResponse(settings.build_logout_url(id_token))
-    await delete_tokens_redis(session_id)
+    await redis.delete_tokens_redis(session_id)
     return response
 
 

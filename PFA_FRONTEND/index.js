@@ -6,21 +6,13 @@ document.addEventListener("DOMContentLoaded", async () => {
     const demoForm = document.getElementById("demoForm");
     const chartsContainer = document.getElementById("chartsContainer");
     const authContainer = document.querySelector(".auth-buttons");
+    const dashboardBtn = document.getElementById("dashboardBtn");
 
     async function checkAuth() {
         try {
-            const response = await fetch("/auth/is_logged", {
-                credentials: "include"
-            });
-            console.log("Auth check status:", response.status);
-            if (!response.ok) {
-                showLoggedOut();
-                return;
-            }
-            console.log("Auth check response status:", response.status);
-            const data = await response.json();
+            const data = await checkMe();
             console.log("Auth check response:", data);
-            if (data.authenticated) {
+            if (!!data) {
                 console.log("User is authenticated");
                 showLoggedIn();
             } else {
@@ -40,6 +32,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     function showLoggedIn() {
         loginBtn.style.display = "none";
         registerBtn.style.display = "none";
+        dashboardBtn.style.display = "inline-block";
         logoutBtn.style.display = "inline-block";
     }
 
@@ -47,10 +40,15 @@ document.addEventListener("DOMContentLoaded", async () => {
         loginBtn.style.display = "inline-block";
         registerBtn.style.display = "inline-block";
         logoutBtn.style.display = "none";
+        dashboardBtn.style.display = "none";
     }
 
     await checkAuth();
 
+    dashboardBtn.addEventListener("click", () => {
+        console.log("Dashboard button clicked");
+        switchToDashboard()
+    });
 
     loginBtn.addEventListener("click", () => {
         window.location.href = "/auth/login";
@@ -81,5 +79,36 @@ document.addEventListener("DOMContentLoaded", async () => {
             setTimeout(() => resolve({ status: "ok", data }), 800);
         });
     }
+
+    async function checkMe(){
+        try {
+            const response = await fetch("/auth/me", {
+                credentials: "include"
+            });
+            if (!response.ok) {
+                return false;
+            }
+            const data = await response.json();
+            if (data && data.authenticated) {
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (err) {
+            console.error("Error fetching user info:", err);
+        }
+    }
+
+    async function switchToDashboard() {
+        const data = await checkMe();
+        console.log("Dashboard auth check:", data);
+        if (!!data) {
+            window.location.href = "/dashboard.html";
+        } else {
+            window.location.href = "/auth/login";
+        }
+    }
+
 
 });

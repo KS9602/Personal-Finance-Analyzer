@@ -2,7 +2,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import RedirectResponse, JSONResponse
 
 from app.exceptions.exceptions import AuthorizationException
-from app.config import settings
+from app.core.config import settings
 
 def register_exception_handlers(app: FastAPI):
     async def authorization_handler(request: Request, exc: AuthorizationException):

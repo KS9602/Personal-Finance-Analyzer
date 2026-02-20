@@ -8,7 +8,7 @@ class Users(Base):
     id = Column(Integer,autoincrement=True, primary_key=True, index=True)
     keycloak_id = Column(String(50), unique=True, index=True, nullable=False)
 
-    expense = relationship("Expenses", back_populates="user", cascade="all, delete-orphan")
+    expenses = relationship("Expenses", back_populates="user", cascade="all, delete-orphan")
 
 class Expenses(Base):
     __tablename__ = "expenses"
@@ -21,7 +21,7 @@ class Expenses(Base):
     price = Column(Double, nullable=False, index=True)
 
     user = relationship("Users", back_populates="expenses")
-    expense_category = relationship("ExpenseCategories", back_populates="expenses")
+    expense_category = relationship("ExpenseCategories", back_populates="expense")
 
 
 class ExpenseCategories(Base):
@@ -30,4 +30,4 @@ class ExpenseCategories(Base):
     id = Column(Integer, autoincrement=True, primary_key=True, index=True)
     name = Column(String(50), nullable=False, unique=True)
 
-    expense = relationship("Expenses", back_populates="expense", cascade="all, delete-orphan")
+    expense = relationship("Expenses", back_populates="expense_category", cascade="all, delete-orphan")

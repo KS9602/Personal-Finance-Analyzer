@@ -1,0 +1,122 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: "Segoe UI", sans-serif;
+}
+
+body {
+    background-color: #121212;
+    color: #e0e0e0;
+    min-height: 100vh;
+}
+
+.navbar {
+    background: #1c1c1c;
+    padding: 16px 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 50px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    padding: 0 20px;
+}
+
+.card {
+    background: #1f1f1f;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+}
+
+h2 {
+    margin-bottom: 20px;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+}
+
+input, select {
+    margin-top: 5px;
+    padding: 8px;
+    border-radius: 6px;
+    border: 1px solid #333;
+    background: #2a2a2a;
+    color: white;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: #5e5eff;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th, td {
+    padding: 10px;
+    text-align: left;
+}
+
+th {
+    border-bottom: 1px solid #333;
+}
+
+tr:nth-child(even) {
+    background: #1a1a1a;
+}
+
+.summary {
+    margin-bottom: 15px;
+    font-weight: bold;
+}
+
+.btn {
+    padding: 8px 14px;
+    border-radius: 6px;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.btn.full {
+    width: 100%;
+}
+
+.primary {
+    background: #5e5eff;
+    color: white;
+}
+
+.primary:hover {
+    background: #7474ff;
+}
+
+.danger {
+    background: #b32626;
+    color: white;
+}
+
+.danger:hover {
+    background: #d43b3b;
+}
+
+.delete-btn {
+    background: #444;
+    color: white;
+    border: none;
+    padding: 5px 8px;
+    border-radius: 4px;
+    cursor: pointer;
+}

@@ -1,6 +1,7 @@
-from fastapi import Depends
+from fastapi import Depends, Request
 
 from app.db.connection import get_db
+from app.core.redis_service import RedisService
 
 from app.repositories import (
     UsersRepository,
@@ -12,6 +13,14 @@ from app.services import (
     ExpensesService,
     ExpenseCategoriesService
 )
+
+#REDIS
+def get_redis(request: Request):
+    return request.app.state.redis
+
+def get_redis_service(redis = Depends(get_redis)):
+    return RedisService(redis)
+
 
 
 def get_users_repository(db = Depends(get_db)):

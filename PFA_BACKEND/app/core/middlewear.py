@@ -1,15 +1,25 @@
 from starlette.middleware.base import BaseHTTPMiddleware, RequestResponseEndpoint
+from fastapi.middleware.cors import CORSMiddleware
 from starlette.requests import Request
 from starlette.responses import Response
-from fastapi import HTTPException
 
+
+from app.core.config import settings
+
+class CustomCORSMiddleware(CORSMiddleware):
+    def __init__(self, app):
+        super().__init__(
+            app=app,
+            allow_origins=settings.CORS_ORIGINS,
+            allow_credentials=True,
+            allow_methods=["*"],
+            allow_headers=["*"],
+        )
 
 
 class CheckAuthMiddlewar(BaseHTTPMiddleware):
     def __init__(self, app):
         super().__init__(app)
-
-
     async def dispatch(self, request: Request, call_next: RequestResponseEndpoint) -> Response:
         # wywalone do custom api routa
 
