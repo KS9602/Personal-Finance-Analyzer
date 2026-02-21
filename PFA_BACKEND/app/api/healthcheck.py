@@ -1,4 +1,4 @@
-from app.auth.utils_auth import AuthApiRouter
+from app.auth.auth_api_route import AuthApiRouter
 from app.auth.utils_auth import public
 
 healthcheck_router = AuthApiRouter(prefix="/healthcheck")

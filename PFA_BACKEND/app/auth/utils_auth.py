@@ -1,63 +1,23 @@
 import uuid
 from typing import Dict, Any
-from fastapi.routing import APIRoute
-from fastapi import APIRouter, Request, Depends
-from fastapi.responses import RedirectResponse
+import logging
 import jwt
 import os
 import base64
 import hashlib
 
-from app.core.config import settings
-from app.exceptions.exceptions import AuthorizationException
 from app.core.redis_service import RedisService
-from app.core.dependencies import get_redis_service, get_redis
 
-import logging
 
 log = logging.getLogger(__name__)
 
 
-class AuthApiRouter(APIRouter):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args,route_class=AuthApiRoute, **kwargs)
 
 
-class AuthApiRoute(APIRoute):
-
-    def get_route_handler(self):
-        original_handler = super().get_route_handler()
-
-        async def custom_route_handler(request: Request):
-            redis = get_redis_service(request.app.state.redis)
-            endpoint = self.endpoint
-            auth_mode = getattr(endpoint, "auth_mode")
-            session_id = request.cookies.get("session_id")
-            tokens = None
-
-            if not auth_mode:
-                return RedirectResponse(settings.PFA_FRONTEND_REDIRECT_URI)
-            if session_id:
-                tokens = await redis.get_tokens_by_session_redis(session_id)
-            if auth_mode == "public":
-                return await original_handler(request)
-            if auth_mode == "anonymous_only":
-                if tokens:
-                    return RedirectResponse(settings.PFA_FRONTEND_REDIRECT_URI)
-                return await original_handler(request)
-
-            if not tokens:
-                raise AuthorizationException(status_code=401)
-
-            request.state.user = "JAN"
-            return await original_handler(request)
-
-
-        return custom_route_handler
-
-async def save_session(redis : RedisService, result: Dict[str, Any]) -> int:
+async def save_session(redis : RedisService, result: Dict[str, Any], session_id: str = None ) -> int:
     log.info("Zapisuje tokeny")
-    session_id = str(uuid.uuid4())
+    if not session_id:
+        session_id = str(uuid.uuid4())
     tokens_with_id = {
         "id_token": result.get("id_token"),
         "access_token": result.get("access_token"),

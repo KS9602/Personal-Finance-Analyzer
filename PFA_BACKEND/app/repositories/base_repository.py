@@ -1,5 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update, delete
+from sqlalchemy import select, update, delete, func
 from typing import Generic, TypeVar, Type, List, Optional
 
 
@@ -10,6 +10,34 @@ class BaseRepository(Generic[Model]):
 
     def __init__(self, session: AsyncSession):
         self.session = session
+
+    async def get_all_by_user(self, user_id: str) -> List[Model]:
+        stmt = (select(self.model).where(self.model.user_id == user_id))
+        result = await self.session.execute(stmt)
+        return result.scalars().all()
+
+    async def get_all_by_user_page(self,user_id: int, page: int, size: int) -> List[Model]:
+        stmt = (select(self.model)
+                .where(self.model.user_id == user_id)
+                .order_by(self.model.id.desc())
+                .offset((page -1) * size)
+                .limit(size)
+
+        )
+        result = await self.session.execute(stmt)
+        return result.scalars().all()
+
+    async def get_count_by_user(self, user_id: int) -> int:
+        stmt = (select(func.count())
+                .where(self.model.user_id == user_id)
+                )
+        result = await self.session.execute(stmt)
+        return result.scalar_one()
+
+    async def get_count(self):
+        stmt = (select(func.count()).select_from(self.model))
+        result = await self.session.execute(stmt)
+        return result.scalar_one()
 
     async def get_by_id(self, entity_id: int) -> Optional[Model]:
         return await self.session.get(self.model, entity_id)

@@ -1,4 +1,4 @@
-from fastapi import Response, Depends, Cookie
+from fastapi import Depends, Cookie
 from fastapi.responses import RedirectResponse
 import httpx
 import logging
@@ -13,12 +13,12 @@ from app.auth.utils_auth import (
     public,
     anonymous_only,
     authenticated,
-    AuthApiRouter,
     get_sub,
     generate_code_verifier,
     generate_code_challenge
 )
 from app.core.redis_service import RedisService
+from app.auth.auth_api_route import AuthApiRouter
 
 
 

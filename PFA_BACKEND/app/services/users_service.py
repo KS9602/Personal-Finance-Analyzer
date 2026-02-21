@@ -18,3 +18,6 @@ class UsersService:
             log.info(f"User doesnt exist, creating")
             user = Users(keycloak_id=sub)
             return await self.users_repository.add(user)
+
+    async def get_user_by_kc_id(self, sub: str) -> Users:
+        return await self.users_repository.get_by_kc_id(sub)
