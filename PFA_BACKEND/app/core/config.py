@@ -53,6 +53,8 @@ class Setting(BaseSettings):
             f"?id_token_hint={token_id}"
             f"&post_logout_redirect_uri={self.PFA_BACKEND_LOGOUT_REDIRECT_URI}"
         )
+
+    @property
     def ISS_URL(self):
         return f"{self.KEYCLOAK_URL}/realms/{self.REALM}"
     

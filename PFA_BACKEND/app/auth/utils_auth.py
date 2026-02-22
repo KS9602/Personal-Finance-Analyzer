@@ -26,7 +26,6 @@ def check_azp(access_azp, refresh_azp):
 
 def check_iss(access_iss, refresh_iss):
     if access_iss != settings.ISS_URL or refresh_iss != settings.ISS_URL:
-        log.debug("Invalid iss")
         raise AuthorizationException(status_code=401)
 
 def payload_refresh(refresh_token):
