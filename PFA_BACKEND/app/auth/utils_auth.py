@@ -6,13 +6,66 @@ import os
 import base64
 import hashlib
 
+from app.exceptions.exceptions import AuthorizationException
+from fastapi.responses import RedirectResponse
+
 from app.core.redis_service import RedisService
+from app.core.config import settings
+
 
 
 log = logging.getLogger(__name__)
 
 
 
+
+def check_azp(access_azp, refresh_azp):
+    if access_azp != settings.PFA_BACKEND_CLIENT_ID or refresh_azp != settings.PFA_BACKEND_CLIENT_ID:
+        log.debug("Invalid azp")
+        raise AuthorizationException(status_code=401)
+
+def check_iss(access_iss, refresh_iss):
+    if access_iss != settings.ISS_URL or refresh_iss != settings.ISS_URL:
+        log.debug("Invalid iss")
+        raise AuthorizationException(status_code=401)
+
+def payload_refresh(refresh_token):
+    return {
+    "grant_type": "refresh_token",
+    "client_id": settings.PFA_BACKEND_CLIENT_ID,
+    "refresh_token": refresh_token,
+    "client_secret": settings.PFA_BACKEND_CLIENT_SECRET
+
+}
+
+def decode_token(token):
+    payload_access_token = jwt.decode(
+        token,
+        options={"verify_signature": False}
+    )
+    exp = payload_access_token.get("exp")
+    azp = payload_access_token.get("azp")
+    iss = payload_access_token.get("iss")
+    sub = payload_access_token.get("sub")
+    if None in (exp, azp, iss, sub):
+        raise AuthorizationException()
+    return exp, azp, iss, sub
+
+
+def logout_redirect():
+    response = RedirectResponse(
+        url=settings.PFA_FRONTEND_REDIRECT_URI,
+        status_code=302
+    )
+    response.delete_cookie("session_id")
+    return response
+
+def logout_kc_redirect(id_token):
+    redirect = RedirectResponse(
+        url=settings.build_logout_url(id_token),
+        status_code=302
+    )
+    redirect.delete_cookie("session_id")
 
 async def save_session(redis : RedisService, result: Dict[str, Any], session_id: str = None ) -> int:
     log.info("Zapisuje tokeny")

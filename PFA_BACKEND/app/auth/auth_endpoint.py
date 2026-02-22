@@ -28,8 +28,8 @@ auth_router = AuthApiRouter(prefix="/auth")
 
 
 @auth_router.get("/me")
-@authenticated
-async def me(session_id: str = Cookie(...)):
+@public
+async def me(session_id: str = Cookie(None)):
     return {"authenticated": bool(session_id)}
 
 
@@ -77,6 +77,7 @@ async def callback(
     payload = {
         "grant_type": "authorization_code",
         "client_id": settings.PFA_BACKEND_CLIENT_ID,
+        "client_secret": settings.PFA_BACKEND_CLIENT_SECRET,
         "code": code,
         "redirect_uri": settings.PFA_BACKEND_REDIRECT_URI,
         "code_verifier": code_verifier
@@ -90,6 +91,8 @@ async def callback(
             headers={"Content-Type": "application/x-www-form-urlencoded"},
         )
     log.debug(f"Keycloak result {result}")
+    log.debug(f"Keycloak result {result.text}")
+
     result.raise_for_status()
     
     log.debug(f"Keycloak result {result.json()}")
@@ -113,7 +116,7 @@ async def callback(
 
 
 @auth_router.get("/logout", response_class=RedirectResponse)
-@authenticated
+@public
 async def logout(
         session_id: str = Cookie(...),
         redis: RedisService = Depends(get_redis_service)
@@ -122,7 +125,9 @@ async def logout(
     token_data = await redis.get_tokens_by_session_redis(session_id)
     if not token_data:
         log.info("Invalid session_id")
-        raise AuthorizationException(status_code=400, detail="Invalid session_id")
+        response = RedirectResponse(settings.PFA_FRONTEND_REDIRECT_URI)
+        response.delete_cookie("session_id")
+        return response
     id_token = token_data.get("id_token")
     response = RedirectResponse(settings.build_logout_url(id_token))
     await redis.delete_tokens_redis(session_id)

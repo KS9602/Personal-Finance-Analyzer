@@ -3,7 +3,7 @@ from typing import List
 
 class Setting(BaseSettings):
 
-    KEYCLOAK_URL: str = "http://localhost:9000"
+    KEYCLOAK_URL: str = "http://keycloak:8080"
     REALM: str = "PFA"
 
     PFA_BACKEND_SECRET: str
@@ -11,7 +11,7 @@ class Setting(BaseSettings):
     PFA_BACKEND_REDIRECT_URI: str = "http://localhost:8000/auth/callback"
     PFA_BACKEND_LOGOUT_REDIRECT_URI: str = "http://localhost:8000/auth/logout/callback"
     PFA_BACKEND_REGISTER_REDIRECT_URI: str =  "http://localhost:8000/auth/login"
-
+    PFA_BACKEND_CLIENT_SECRET: str
 
     PFA_FRONTEND_CLIENT_ID: str = "pfa_frontend"
     PFA_FRONTEND_REDIRECT_URI: str = "http://localhost"
@@ -32,7 +32,7 @@ class Setting(BaseSettings):
 
     CORS_ORIGINS: List[str] = [
         "http://localhost:8080",
-        "http://localhost:9000",
+        "http://keycloak:8080",
     ]
 
     @property
@@ -45,15 +45,16 @@ class Setting(BaseSettings):
 
     @property
     def TOKEN_URL(self):
-        return f"http://keycloak:8080/realms/{self.REALM}/protocol/openid-connect/token"
+        return f"{self.KEYCLOAK_URL}/realms/{self.REALM}/protocol/openid-connect/token"
 
     def build_logout_url(self,token_id):
         return (
-            f"{settings.KEYCLOAK_URL}/realms/{settings.REALM}/protocol/openid-connect/logout"
+            f"{self.KEYCLOAK_URL}/realms/{self.REALM}/protocol/openid-connect/logout"
             f"?id_token_hint={token_id}"
-            f"&post_logout_redirect_uri={settings.PFA_BACKEND_LOGOUT_REDIRECT_URI}"
+            f"&post_logout_redirect_uri={self.PFA_BACKEND_LOGOUT_REDIRECT_URI}"
         )
-
+    def ISS_URL(self):
+        return f"{self.KEYCLOAK_URL}/realms/{self.REALM}"
     
 
 settings = Setting()

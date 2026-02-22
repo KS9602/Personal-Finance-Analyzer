@@ -37,9 +37,10 @@ services:
       DB_DATABASE: keycloak
       DB_USER: keycloak
       DB_PASSWORD: keycloak
-
+      KC_HOSTNAME: keycloak
+      KC_HOSTNAME_STRICT: false
       KC_PROXY: edge
-      KC_HOSTNAME_STRICT: "false"
+
       # KC_HTTP_RELATIVE_PATH: /keycloak
     depends_on:
       - postgres
@@ -48,7 +49,7 @@ services:
     volumes:
       - keycloak_data:/opt/keycloak/data
     ports:
-      - "9000:8080"
+      - "8080:8080"
     networks:
       - outbound
       - backend
@@ -74,6 +75,7 @@ services:
       DB_PORT: 5432            
       DB_NAME: ${PFA_DB_NAME}        
       PFA_BACKEND_SECRET: ${PFA_BACKEND_SECRET}    
+      PFA_BACKEND_CLIENT_SECRET: ${PFA_BACKEND_CLIENT_SECRET}
     ports:
       - "8000:8000"
     depends_on:

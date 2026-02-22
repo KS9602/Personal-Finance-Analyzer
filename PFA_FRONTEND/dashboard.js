@@ -5,8 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const totalAmount = document.getElementById("totalAmount");
     const logoutBtn = document.getElementById("logoutBtn");
 
-    let expenses = JSON.parse(localStorage.getItem("expenses")) || [];
-
+    let expenses = [];
     checkAuth();
 
 
@@ -80,7 +79,9 @@ try {
         return false;
     }
     const data = await response.json();
+
     if (data && data.authenticated) {
+        await getUserExpenses();
         return true;
     } else {
         return false;
@@ -104,6 +105,29 @@ try {
             window.location.href = "/";
         } 
     }
+
+async function getUserExpenses(page = 1) {
+    try {
+        const response = await fetch(
+            `/api/v1/dashboard/get_expenses?page=${page}&size=10`,
+            { credentials: "include" }
+        );
+
+        if (!response.ok) {
+            throw new Error("Failed to fetch expenses");
+        }
+
+        const data = await response.json();
+
+        // 🔥 PODMIENIASZ lokalną listę
+        expenses = data.items;
+
+        renderExpenses();
+
+    } catch (err) {
+        console.error("Error fetching expenses:", err);
+    }
+}
 
 });
 
