@@ -36,18 +36,18 @@ class Setting(BaseSettings):
     ]
 
     @property
-    def REDIS_URL(self):
+    def REDIS_URL(self) -> str:
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}"
 
     @property
-    def DB_URL(self):
+    def DB_URL(self) -> str:
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
     @property
-    def TOKEN_URL(self):
+    def TOKEN_URL(self) -> str:
         return f"{self.KEYCLOAK_URL}/realms/{self.REALM}/protocol/openid-connect/token"
 
-    def build_logout_url(self,token_id):
+    def build_logout_url(self,token_id) -> str:
         return (
             f"{self.KEYCLOAK_URL}/realms/{self.REALM}/protocol/openid-connect/logout"
             f"?id_token_hint={token_id}"
@@ -55,7 +55,7 @@ class Setting(BaseSettings):
         )
 
     @property
-    def ISS_URL(self):
+    def ISS_URL(self) -> str:
         return f"{self.KEYCLOAK_URL}/realms/{self.REALM}"
     
 

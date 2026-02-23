@@ -34,7 +34,7 @@ class BaseRepository(Generic[Model]):
         result = await self.session.execute(stmt)
         return result.scalar_one()
 
-    async def get_count(self):
+    async def get_count(self) -> int:
         stmt = (select(func.count()).select_from(self.model))
         result = await self.session.execute(stmt)
         return result.scalar_one()

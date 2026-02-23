@@ -3,11 +3,18 @@ from typing import List
 
 from pydantic import BaseModel
 
+class CategoryOut(BaseModel):
+    id: int
+    name: str
+
+    model_config = {"from_attributes": True}
+
 
 class ExpenseOut(BaseModel):
     id: int
-    price: float
+    amount: float
     description: str
+    expense_category: CategoryOut
     date: datetime
 
     model_config = {"from_attributes": True}
@@ -20,3 +27,8 @@ class ExpenseDataPage(BaseModel):
     size: int
     total_pages: int
 
+class ExpenseCreate(BaseModel):
+    amount: float
+    description: str
+    category_id: int
+    date: datetime

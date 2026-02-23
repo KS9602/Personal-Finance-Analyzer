@@ -4,8 +4,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const table = document.getElementById("expensesTable");
     const totalAmount = document.getElementById("totalAmount");
     const logoutBtn = document.getElementById("logoutBtn");
+    const previousPageBtn = document.getElementById("previousPageBtn");
+    const nextPageBtn = document.getElementById("nextPageBtn");
+    const pageCounter = document.getElementById("pageCounter")
 
     let expenses = [];
+    let currentPage = 1;
+    let totalPages = 1;
+
     checkAuth();
 
 
@@ -16,6 +22,7 @@ document.addEventListener("DOMContentLoaded", () => {
     function renderExpenses() {
         table.innerHTML = "";
         let total = 0;
+        pageCounter.textContent = `${currentPage} / ${totalPages}`
 
         expenses.forEach((expense, index) => {
             total += parseFloat(expense.amount);
@@ -24,9 +31,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             row.innerHTML = `
                 <td>${expense.date}</td>
-                <td>${expense.category}</td>
+                <td>${expense.expense_category.name}</td>
                 <td>${expense.description || "-"}</td>
                 <td>${expense.amount} zł</td>
+                <td>${expense.date} zł</td>
                 <td><button class="delete-btn" data-index="${index}">Usuń</button></td>
             `;
 
@@ -65,9 +73,15 @@ document.addEventListener("DOMContentLoaded", () => {
         window.location.href = "/auth/logout";
     });
 
-    renderExpenses();
 
-
+    nextPageBtn.addEventListener("click", () => {
+        getUserExpenses(currentPage + 1)
+    })
+    previousPageBtn.addEventListener("click", () =>{
+        if(currentPage > 1){
+            getUserExpenses(currentPage - 1)
+        }
+    })
 
 
 async function checkMe(){
@@ -99,7 +113,7 @@ try {
             if (!data) {
                 window.location.href = "/";
             } 
-
+            
         } catch (e) {
             console.error("Error during auth check:", e);
             window.location.href = "/";
@@ -109,7 +123,7 @@ try {
 async function getUserExpenses(page = 1) {
     try {
         const response = await fetch(
-            `/api/v1/dashboard/get_expenses?page=${page}&size=10`,
+            `/api/v1/dashboard/get_expenses_page?page=${page}&size=10`,
             { credentials: "include" }
         );
 
@@ -122,12 +136,23 @@ async function getUserExpenses(page = 1) {
         // 🔥 PODMIENIASZ lokalną listę
         expenses = data.items;
 
-        renderExpenses();
+
+        if(expenses.length > 0){
+            currentPage = data.page;
+            totalPages = data.total_pages;
+            renderExpenses();
+        }
+
 
     } catch (err) {
         console.error("Error fetching expenses:", err);
     }
 }
+
+async function addExpense(params) {
+    
+}
+
 
 });
 

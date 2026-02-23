@@ -18,7 +18,7 @@ class Expenses(Base):
     category_id = Column(Integer, ForeignKey("expense_categories.id", ondelete="CASCADE"), nullable=False, index=True)
     date = Column(DateTime, nullable=False, index=True)
     description = Column(String(200))
-    price = Column(Double, nullable=False, index=True)
+    amount = Column(Double, nullable=False, index=True)
 
     user = relationship("Users", back_populates="expenses")
     expense_category = relationship("ExpenseCategories", back_populates="expense")

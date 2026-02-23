@@ -13,6 +13,8 @@ services:
   nginx:
     build: ./PFA_FRONTEND
     container_name: nginx
+    volumes:
+      - ./PFA_FRONTEND:/usr/share/nginx/html
     ports:
       - "80:80"
     networks:

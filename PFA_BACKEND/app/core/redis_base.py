@@ -11,7 +11,7 @@ class RedisClient:
         self.pool: ConnectionPool = None
         self.client: Redis = None
 
-    async def connect(self):
+    async def connect(self) -> None:
         self.pool = ConnectionPool.from_url(
             settings.REDIS_URL,
             max_connections=50,
@@ -20,7 +20,7 @@ class RedisClient:
         log.info("Redis UP")
         self.client = Redis(connection_pool=self.pool)
 
-    async def disconnect(self):
+    async def disconnect(self) -> None:
         if self.client:
             await self.client.close()
         if self.pool:
