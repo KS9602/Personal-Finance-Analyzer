@@ -68,3 +68,4 @@ async def get_current_user(
 CurrentUserDP = Annotated[Users, Depends(get_current_user)]
 RedisDP = Annotated[RedisService, Depends(get_redis_service)]
 ExpensesDP = Annotated[ExpensesService, Depends(get_expenses_service)]
+ExpensesCategoriesDP = Annotated[ExpenseCategoriesService, Depends(get_expense_categories_service)]

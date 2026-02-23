@@ -12,8 +12,9 @@ document.addEventListener("DOMContentLoaded", () => {
     let currentPage = 1;
     let totalPages = 1;
 
-    checkAuth();
 
+    checkAuth();
+    loadCategories();
 
     function saveExpenses() {
         localStorage.setItem("expenses", JSON.stringify(expenses));
@@ -31,7 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
             row.innerHTML = `
                 <td>${expense.date}</td>
-                <td>${expense.expense_category.name}</td>
+                <td>${expense.category_id}</td>
                 <td>${expense.description || "-"}</td>
                 <td>${expense.amount} zł</td>
                 <td>${expense.date} zł</td>
@@ -43,22 +44,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
         totalAmount.textContent = total.toFixed(2);
     }
-
-    form.addEventListener("submit", (e) => {
-        e.preventDefault();
-
-        const newExpense = {
-            amount: document.getElementById("amount").value,
-            date: document.getElementById("date").value,
-            category: document.getElementById("category").value,
-            description: document.getElementById("description").value
-        };
-
-        expenses.push(newExpense);
-        saveExpenses();
-        renderExpenses();
-        form.reset();
-    });
 
     table.addEventListener("click", (e) => {
         if (e.target.classList.contains("delete-btn")) {
@@ -149,9 +134,69 @@ async function getUserExpenses(page = 1) {
     }
 }
 
-async function addExpense(params) {
-    
+
+
+async function getCategories() {
+    try{
+        response = await fetch("/api/v1/dashboard/get_expense_categories",
+             {credentials: "include"});
+        if(!response.ok){
+            throw new Error("Erorr")
+        }
+        return await response.json();  
+
+    } catch (err) {
+        console.log(`popsulo sie: ${err}`)
+    }
 }
+
+async function loadCategories() {
+    const select = document.getElementById("category")
+    const categories = await getCategories()
+    categories.forEach(c => {
+        const option = document.createElement("option");
+        option.value = c.id
+        option.textContent = c.name
+        select.appendChild(option);
+    })
+}
+
+function getExpenseFormData() {
+    const amount = parseFloat(document.getElementById("amount").value);
+    const date = document.getElementById("date").value;
+    const categoryId = parseInt(document.getElementById("category").value);
+    const description = document.getElementById("description").value.trim();
+
+    return {
+        amount: amount,
+        date: date,
+        category_id: categoryId,
+        description: description
+    };
+}
+
+document.getElementById("expenseForm").addEventListener("submit", async (e) => {
+    e.preventDefault();
+
+    const expenseData = getExpenseFormData();
+    console.log(expenseData)
+    const response = await fetch("/api/v1/dashboard/add_expense", {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json"
+        },
+        credentials: "include",
+        body: JSON.stringify(expenseData)
+    });
+
+    if (!response.ok) {
+    const errorText = await response.text();
+    console.log("Backend error:", errorText);
+        return;
+    }
+
+    console.log("Dodano wydatek");
+});
 
 
 });

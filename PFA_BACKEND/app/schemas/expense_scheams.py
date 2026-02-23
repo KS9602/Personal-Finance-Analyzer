@@ -3,6 +3,16 @@ from typing import List
 
 from pydantic import BaseModel
 
+class ExpenseBase(BaseModel):
+    id: int
+    amount: float
+    description: str
+    category_id : int
+    date: datetime
+
+    model_config = {"from_attributes": True}
+
+
 class CategoryOut(BaseModel):
     id: int
     name: str

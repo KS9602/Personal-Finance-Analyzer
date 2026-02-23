@@ -1,12 +1,16 @@
 from math import ceil
+from fastapi.responses import Response
+from datetime import datetime
 
-from app.models.models import Users
+from app.models.models import Users, Expenses
 from app.repositories.expenses_repository import ExpensesRepository
-from app.schemas.expense_scheams import ExpenseDataPage
+from app.schemas.expense_scheams import ExpenseDataPage, ExpenseCreate
 
 import logging
 
 log = logging.getLogger(__name__)
+
+
 
 class ExpensesService:
     def __init__(self,repo: ExpensesRepository):
@@ -23,3 +27,10 @@ class ExpensesService:
             size= size,
             total_pages = ceil(total / size)
         )
+
+    async def add_user_expense_response(self, user: Users, expense_create: ExpenseCreate) -> Expenses:
+        expense_entity = Expenses(
+            user_id = user.id,
+            **expense_create.model_dump()
+        )
+        return await self.repo.add(expense_entity)
