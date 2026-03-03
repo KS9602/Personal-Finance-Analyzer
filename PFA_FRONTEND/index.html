@@ -5,48 +5,96 @@
     <title>PFA App</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="index.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
 
-    <header class="navbar">
-        <div class="logo">PFA</div>
-        <div class="auth-buttons">
-            <button id="dashboardBtn" class="btn primary">Dashboard</button>
-            <button id="loginBtn" class="btn primary">Zaloguj</button>
-            <button id="registerBtn" class="btn secondary">Rejestracja</button>
-            <button id="logoutBtn" class="btn danger">Wyloguj</button>
+<header class="navbar">
+    <div class="logo">PFA</div>
+    <div class="auth-buttons">
+        <button id="dashboardBtn" class="btn primary">Dashboard</button>
+        <button id="loginBtn" class="btn primary">Zaloguj</button>
+        <button id="registerBtn" class="btn secondary">Rejestracja</button>
+        <button id="logoutBtn" class="btn danger">Wyloguj</button>
+    </div>
+</header>
+
+<main class="container">
+
+    <section class="hero">
+        <h1>Kontroluj swoje finanse w prosty sposób</h1>
+        <p>Śledź wydatki, analizuj kategorie i podejmuj lepsze decyzje finansowe.</p>
+    </section>
+
+    <section class="stats-grid">
+        <div class="stat-card">
+            <h3>12 450 zł</h3>
+            <p>Wydatki w tym miesiącu</p>
         </div>
-    </header>
+        <div class="stat-card">
+            <h3>8</h3>
+            <p>Kategorii</p>
+        </div>
+        <div class="stat-card">
+            <h3>1 550 zł</h3>
+            <p>Średnia tygodniowa</p>
+        </div>
+    </section>
 
-    <main class="container">
+    <section class="card chart-card">
+        <h2>Przykładowy wykres miesięczny</h2>
+        <canvas id="demoChart"></canvas>
+    </section>
 
-        <section class="card">
-            <h2>Formularz demo</h2>
+    <section class="features-grid">
+        <div class="feature-card">
+            <h3>📊 Analiza</h3>
+            <p>Przejrzyste statystyki i podsumowania.</p>
+        </div>
+        <div class="feature-card">
+            <h3>🔐 Bezpieczeństwo</h3>
+            <p>Twoje dane są chronione.</p>
+        </div>
+        <div class="feature-card">
+            <h3>⚡ Prostota</h3>
+            <p>Minimalistyczny i szybki interfejs.</p>
+        </div>
+    </section>
 
-            <form id="demoForm">
-                <div class="form-group">
-                    <label>Tekst</label>
-                    <input type="text" name="inputText" placeholder="Wpisz coś..." required>
-                </div>
+</main>
 
-                <div class="form-group">
-                    <label>Upload pliku</label>
-                    <input type="file" name="fileUpload">
-                </div>
+<script>
+document.addEventListener("DOMContentLoaded", () => {
+    const ctx = document.getElementById("demoChart");
 
-                <button type="submit" class="btn primary full">Wyślij</button>
-            </form>
-        </section>
+    new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: ["Sty", "Lut", "Mar", "Kwi", "Maj", "Cze"],
+            datasets: [{
+                label: "Wydatki",
+                data: [1200, 1900, 1500, 2200, 1700, 2450],
+                borderColor: "#3b82f6",
+                backgroundColor: "rgba(59,130,246,0.1)",
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            plugins: {
+                legend: {
+                    labels: { color: "#e5e7eb" }
+                }
+            },
+            scales: {
+                x: { ticks: { color: "#9ca3af" } },
+                y: { ticks: { color: "#9ca3af" } }
+            }
+        }
+    });
+});
+</script>
 
-        <section class="card">
-            <h2>Wykresy</h2>
-            <div id="chartsContainer" class="chart-placeholder">
-                Brak danych
-            </div>
-        </section>
-
-    </main>
-
-    <script src="index.js"></script>
+<script src="index.js"></script>
 </body>
 </html>

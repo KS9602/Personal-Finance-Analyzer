@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import List
 
-from pydantic import BaseModel
+from pydantic import BaseModel, model_validator
 
 class ExpenseBase(BaseModel):
     id: int
@@ -42,3 +42,23 @@ class ExpenseCreate(BaseModel):
     description: str
     category_id: int
     date: datetime
+
+
+class ExpenseScope(BaseModel):
+    date_scope_start: datetime
+    date_scope_end: datetime
+    category: int | None
+
+    @model_validator(mode="after")
+    def date_validator(self):
+        if self.date_scope_start > self.date_scope_end:
+            raise ValueError("Start date is latest than end date")
+        return self
+
+class ExpenseCharData(BaseModel):
+    date: datetime
+    amount: float
+
+
+class DashboardChartResponse(BaseModel):
+    data: List[ExpenseCharData]

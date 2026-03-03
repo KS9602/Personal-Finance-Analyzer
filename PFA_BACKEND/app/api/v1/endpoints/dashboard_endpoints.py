@@ -1,10 +1,13 @@
+from datetime import date
+from typing import Optional
+
 from app.auth.auth_api_route import AuthApiRouter
 from app.schemas.expense_categories_schemas import ExpenseCategoriesBase
 from fastapi import Query
 import logging
 
-from app.schemas.expense_scheams import ExpenseDataPage, ExpenseCreate, ExpenseBase
-from app.auth.utils_auth import authenticated
+from app.schemas.expense_scheams import ExpenseDataPage, ExpenseCreate, ExpenseBase, ExpenseScope
+from app.auth.utils_auth import authenticated, public
 from app.core.dependencies import CurrentUserDP, ExpensesDP, ExpensesCategoriesDP
 
 
@@ -54,3 +57,22 @@ async def delete_expense(
         expense_serivce: ExpensesDP
 ):
     await expense_serivce.delete_expense(user, expense_id)
+
+
+@router.get("/dashboard_user_chart")
+@authenticated
+async def dashboard_user_chart(
+        user: CurrentUserDP,
+        expense_serivce: ExpensesDP,
+        expense_categories_service: ExpensesCategoriesDP,
+        category_id: Optional[int] = Query(None),
+        date_from: Optional[date] = Query(None),
+        date_to: Optional[date] = Query(None),
+):
+    return await expense_serivce.expense_chart(
+        expense_categories_service,
+        user,
+        category_id,
+        date_from,
+        date_to
+    )
