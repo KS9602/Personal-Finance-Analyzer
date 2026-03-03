@@ -31,12 +31,11 @@ document.addEventListener("DOMContentLoaded", () => {
             const row = document.createElement("tr");
 
             row.innerHTML = `
-                <td>${expense.date}</td>
                 <td>${expense.category_id}</td>
                 <td>${expense.description || "-"}</td>
                 <td>${expense.amount} zł</td>
                 <td>${expense.date} zł</td>
-                <td><button class="delete-btn" data-index="${index}">Usuń</button></td>
+                <td><button class="delete-btn" onclick="deleteExpense(${expense.id})">Usuń</button></td>
             `;
 
             table.appendChild(row);
@@ -44,6 +43,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         totalAmount.textContent = total.toFixed(2);
     }
+
+
 
     table.addEventListener("click", (e) => {
         if (e.target.classList.contains("delete-btn")) {
@@ -68,6 +69,24 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     })
 
+
+async function deleteExpense(expenseId) {
+    try{
+        const response = await fetch(`/delete_expense/${expenseId}`,{
+            method: 'DELETE',
+            headers: {"Content-Type": "application/json"}
+    })
+        if (!response.ok) {
+            throw new Error("Błąd przy usuwaniu");
+        }
+
+        console.log("Usunięto");
+        renderExpenses()
+
+    } catch (err) {
+        console.log('eror {}',err)
+    }
+}
 
 async function checkMe(){
 try {

@@ -1,13 +1,12 @@
 from app.auth.auth_api_route import AuthApiRouter
 from app.schemas.expense_categories_schemas import ExpenseCategoriesBase
-from fastapi import Query, Depends, Response
+from fastapi import Query
 import logging
 
-from app.schemas.expense_scheams import ExpenseDataPage, ExpenseCreate, ExpenseOut, ExpenseBase
+from app.schemas.expense_scheams import ExpenseDataPage, ExpenseCreate, ExpenseBase
 from app.auth.utils_auth import authenticated
-from app.services import ExpensesService
-from app.core.dependencies import get_expenses_service, get_current_user, CurrentUserDP, RedisDP, ExpensesDP, \
-    ExpensesCategoriesDP
+from app.core.dependencies import CurrentUserDP, ExpensesDP, ExpensesCategoriesDP
+
 
 log = logging.getLogger(__name__)
 
@@ -41,8 +40,17 @@ async def get_expense_categories(
 @router.post("/add_expense", response_model=ExpenseBase)
 @authenticated
 async def add_expense(
-        user: CurrentUserDP,
-        expense_service: ExpensesDP,
         new_expense: ExpenseCreate,
+        user: CurrentUserDP,
+        expense_service: ExpensesDP
 ):
     return await expense_service.add_user_expense_response(user, new_expense)
+
+@router.delete("/delete_expense/{expense_id}", status_code=204)
+@authenticated
+async def delete_expense(
+        expense_id: int,
+        user: CurrentUserDP,
+        expense_serivce: ExpensesDP
+):
+    await expense_serivce.delete_expense(user, expense_id)

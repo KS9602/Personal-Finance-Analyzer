@@ -1,6 +1,6 @@
 from math import ceil
-from fastapi.responses import Response
-from datetime import datetime
+
+from app.exceptions.exceptions import AuthorizationException
 
 from app.models.models import Users, Expenses
 from app.repositories.expenses_repository import ExpensesRepository
@@ -34,3 +34,10 @@ class ExpensesService:
             **expense_create.model_dump()
         )
         return await self.repo.add(expense_entity)
+
+
+    async def delete_expense(self, user: Users, expense_id: int):
+        expense_entity = await self.repo.get_by_id(expense_id)
+        if not expense_entity or expense_entity.user_id != user.id:
+            raise AuthorizationException(403)
+        await self.repo.delete_by_id(expense_id)
