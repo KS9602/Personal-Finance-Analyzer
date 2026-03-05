@@ -13,14 +13,24 @@ services:
   nginx:
     build: ./PFA_FRONTEND
     container_name: nginx
-    volumes:
-      - ./PFA_FRONTEND:/usr/share/nginx/html
     ports:
       - "80:80"
     networks:
       - outbound
       - backend
 
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    networks:
+      - backend
+      - outbound
   redis:
     image: redis:7
     container_name: redis
@@ -43,7 +53,6 @@ services:
       KC_HOSTNAME_STRICT: false
       KC_PROXY: edge
 
-      # KC_HTTP_RELATIVE_PATH: /keycloak
     depends_on:
       - postgres
     command:
@@ -78,6 +87,7 @@ services:
       DB_NAME: ${PFA_DB_NAME}        
       PFA_BACKEND_SECRET: ${PFA_BACKEND_SECRET}    
       PFA_BACKEND_CLIENT_SECRET: ${PFA_BACKEND_CLIENT_SECRET}
+      CELERY_BROKER_URL: amqp://admin:admin@rabbitmq:5672//   # wywalic do envow
     ports:
       - "8000:8000"
     depends_on:
@@ -89,3 +99,22 @@ services:
       - outbound
       - backend
 
+  pfa_celery:
+    build: ./PFA_BACKEND
+    container_name: pfa_celery
+    command: celery -A app.celery_core.celery_app.celery_app worker --loglevel=debug
+    volumes:
+      - ./PFA_BACKEND:/app
+    depends_on:
+      - rabbitmq
+    environment:
+      DB_USER: ${PFA_DB_USER}
+      DB_PASSWORD: ${PFA_DB_PASSWORD}
+      DB_HOST: ${PFA_DB_HOST}
+      DB_PORT: 5432
+      DB_NAME: ${PFA_DB_NAME}
+      PFA_BACKEND_SECRET: ${PFA_BACKEND_SECRET}
+      PFA_BACKEND_CLIENT_SECRET: ${PFA_BACKEND_CLIENT_SECRET}
+      CELERY_BROKER_URL: amqp://admin:admin@rabbitmq:5672//   # wywalic do envow
+    networks:
+      - backend

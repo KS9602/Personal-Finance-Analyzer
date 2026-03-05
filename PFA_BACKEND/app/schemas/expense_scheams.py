@@ -62,3 +62,7 @@ class ExpenseCharData(BaseModel):
 
 class DashboardChartResponse(BaseModel):
     data: List[ExpenseCharData]
+
+
+class RaportGenerateResponse(BaseModel):
+    task_id: str

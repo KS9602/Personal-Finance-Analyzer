@@ -33,20 +33,24 @@ def get_users_repository(db = Depends(get_db)) -> UsersRepository:
 def get_users_service(users_repository: UsersRepository = Depends(get_users_repository)) -> UsersService:
     return UsersService(users_repository)
 
-
-def get_expenses_repository(db = Depends(get_db)) -> ExpensesRepository:
-    return ExpensesRepository(db)
-
-def get_expenses_service(expenses_repository: ExpensesRepository = Depends(get_expenses_repository)) -> ExpensesService:
-    return ExpensesService(expenses_repository)
-
-
 def get_expense_categories_repository(db = Depends(get_db)) -> ExpenseCategoriesRepository:
     return ExpenseCategoriesRepository(db)
 
 def get_expense_categories_service(expense_categories_repository: ExpenseCategoriesRepository = Depends(get_expense_categories_repository))\
         -> ExpenseCategoriesService:
     return ExpenseCategoriesService(expense_categories_repository)
+
+
+
+def get_expenses_repository(db = Depends(get_db)) -> ExpensesRepository:
+    return ExpensesRepository(db)
+
+def get_expenses_service(
+        expenses_repository: ExpensesRepository = Depends(get_expenses_repository),
+        expense_categories_service: ExpenseCategoriesService = Depends(get_expense_categories_service)
+                         ) -> ExpensesService:
+    return ExpensesService(expenses_repository, expense_categories_service)
+
 
 
 async def get_current_user(

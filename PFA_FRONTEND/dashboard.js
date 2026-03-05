@@ -255,7 +255,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (dateTo) params.append("date_to", dateTo);
 
         const response = await fetch(
-            `/api/v1/dashboard/dashboard_user_chart?${params.toString()}`,
+            `/api/v1/dashboard/user_chart?${params.toString()}`,
             { credentials: "include" }
         );
 

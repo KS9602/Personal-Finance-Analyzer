@@ -1,7 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update, delete, func
-from typing import Generic, TypeVar, Type, List, Optional
-
+from sqlalchemy import select, update, delete, func, Select
+from typing import Generic, TypeVar, Type, List, Optional, Any
 
 Model = TypeVar("Model")
 
@@ -10,6 +9,13 @@ class BaseRepository(Generic[Model]):
 
     def __init__(self, session: AsyncSession):
         self.session = session
+
+
+    async def exe_aync(self, stmt: Select[Any]):
+        return await self.session.execute(stmt)
+
+    def exe_sync(self, stmt: Select[Any]):
+        return self.session.execute(stmt)
 
     async def get_all_by_user(self, user_id: str) -> List[Model]:
         stmt = (select(self.model).where(self.model.user_id == user_id))

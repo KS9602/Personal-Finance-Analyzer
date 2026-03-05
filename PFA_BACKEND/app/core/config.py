@@ -30,6 +30,8 @@ class Setting(BaseSettings):
     REDIS_EXPIRE_SEC: int = 3600
     CODE_VERIFIER_EXP: int = 300
 
+    CELERY_BROKER_URL: str = "123123123121111111111111111111111111111111111111111111111111"
+
     CORS_ORIGINS: List[str] = [
         "http://localhost:8080",
         "http://keycloak:8080",

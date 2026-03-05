@@ -1,4 +1,5 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Double
+from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.orm import relationship
 from app.models.base import Base
 
@@ -9,6 +10,7 @@ class Users(Base):
     keycloak_id = Column(String(50), unique=True, index=True, nullable=False)
 
     expenses = relationship("Expenses", back_populates="user", cascade="all, delete-orphan")
+    celery_tasks = relationship("CeleryTaskStatus", back_populates="user")
 
 class Expenses(Base):
     __tablename__ = "expenses"
@@ -31,3 +33,16 @@ class ExpenseCategories(Base):
     name = Column(String(50), nullable=False, unique=True)
 
     expense = relationship("Expenses", back_populates="expense_category", cascade="all, delete-orphan")
+
+
+class CeleryTaskStatus(Base):
+    __tablename__ = "dashboard_raport_generate_status"
+
+    id = Column(Integer, autoincrement=True, primary_key=True, index=True)
+    task_id = Column(String(36), nullable=False)
+    user_id = Column(Integer,ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
+    task_type = Column(String(50), nullable=False)
+    status = Column(String(10), nullable=False)
+    params = Column(JSONB)
+
+    user = relationship("Users", back_populates="celery_tasks")

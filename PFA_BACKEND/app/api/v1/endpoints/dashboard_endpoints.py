@@ -6,8 +6,8 @@ from app.schemas.expense_categories_schemas import ExpenseCategoriesBase
 from fastapi import Query
 import logging
 
-from app.schemas.expense_scheams import ExpenseDataPage, ExpenseCreate, ExpenseBase, ExpenseScope
-from app.auth.utils_auth import authenticated, public
+from app.schemas.expense_scheams import ExpenseDataPage, ExpenseCreate, ExpenseBase
+from app.auth.utils_auth import authenticated
 from app.core.dependencies import CurrentUserDP, ExpensesDP, ExpensesCategoriesDP
 
 
@@ -59,18 +59,31 @@ async def delete_expense(
     await expense_serivce.delete_expense(user, expense_id)
 
 
-@router.get("/dashboard_user_chart")
+@router.get("/user_chart")
 @authenticated
 async def dashboard_user_chart(
         user: CurrentUserDP,
         expense_serivce: ExpensesDP,
-        expense_categories_service: ExpensesCategoriesDP,
         category_id: Optional[int] = Query(None),
         date_from: Optional[date] = Query(None),
         date_to: Optional[date] = Query(None),
 ):
     return await expense_serivce.expense_chart(
-        expense_categories_service,
+        user,
+        category_id,
+        date_from,
+        date_to
+    )
+
+@router.get("/generate_raport")
+async def generate_raport(
+        user: CurrentUserDP,
+        expense_serivce: ExpensesDP,
+        category_id: Optional[int] = Query(None),
+        date_from: Optional[date] = Query(None),
+        date_to: Optional[date] = Query(None)
+):
+    return await expense_serivce.delay_raport_generate(
         user,
         category_id,
         date_from,
