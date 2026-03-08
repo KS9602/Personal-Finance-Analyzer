@@ -13,7 +13,7 @@ target_metadata = Base.metadata
 
 # config
 config = context.config
-config.set_main_option("sqlalchemy.url",settings.DB_URL)
+config.set_main_option("sqlalchemy.url",settings.DB_URL_ASYNC)
 fileConfig(config.config_file_name)
 
 

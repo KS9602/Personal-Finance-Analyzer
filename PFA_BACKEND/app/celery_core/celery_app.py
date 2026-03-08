@@ -1,7 +1,12 @@
 import os
+
+from app.db.connection import SessionLocal
 from celery import Celery
 
 from app.core.config import settings
+from app.celery_core.utils import BaseTask
+
+BaseTask.sessionmaker = SessionLocal
 
 broker_url = os.getenv(
     "CELERY_BROKER_URL",

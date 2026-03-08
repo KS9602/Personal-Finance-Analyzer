@@ -14,10 +14,10 @@ target_metadata = Base.metadata
 
 # config
 config = context.config
-config.set_main_option("sqlalchemy.url",settings.DB_URL)
+config.set_main_option("sqlalchemy.url",settings.DB_URL_ASYNC)
 fileConfig(config.config_file_name)
 
-DATABASE_URL = settings.DB_URL
+DATABASE_URL = settings.DB_URL_ASYNC
 
 def do_run_migrations(connection: Connection):
     context.configure(connection=connection, target_metadata=target_metadata)

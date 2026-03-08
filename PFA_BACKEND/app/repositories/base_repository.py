@@ -11,12 +11,6 @@ class BaseRepository(Generic[Model]):
         self.session = session
 
 
-    async def exe_aync(self, stmt: Select[Any]):
-        return await self.session.execute(stmt)
-
-    def exe_sync(self, stmt: Select[Any]):
-        return self.session.execute(stmt)
-
     async def get_all_by_user(self, user_id: str) -> List[Model]:
         stmt = (select(self.model).where(self.model.user_id == user_id))
         result = await self.session.execute(stmt)

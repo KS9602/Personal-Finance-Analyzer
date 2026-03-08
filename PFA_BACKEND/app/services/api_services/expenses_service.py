@@ -1,22 +1,24 @@
-from datetime import date, datetime
+from datetime import datetime, date
 from math import ceil
+import uuid
 
-from app.celery_core.utils import save_task
+from app.core.config import settings
 from app.exceptions.exceptions import AuthorizationException
-from app.models.models import Users, Expenses
+from app.models.models import Users, Expenses, TaskStatus
 from app.repositories.expenses_repository import ExpensesRepository
 from app.schemas.expense_scheams import (
     ExpenseDataPage,
     ExpenseCreate,
     ExpenseCharData,
     DashboardChartResponse,
-    RaportGenerateResponse
 )
 
 import logging
 
-from app.services.expense_categories_service import ExpenseCategoriesService
+from app.services.api_services.expense_categories_service import ExpenseCategoriesService
 from asyncpg.pgproto.pgproto import timedelta
+from fastapi import HTTPException
+from starlette.responses import FileResponse
 
 log = logging.getLogger(__name__)
 
@@ -60,24 +62,12 @@ class ExpensesService:
             date_from: datetime,
             date_to: datetime
     ):
-        if date_to is None:
-            date_to = datetime.now()
-        if date_from is None:
-            date_from = date_to - timedelta(weeks=8)
-
+        date_to, date_from = self.valid_chart_dates(date_to, date_from)
         if category_id and not await self._expense_categories_service.repo.exists(category_id):
             category_id = None
-        if date_from > date_to:
-            raise ValueError("Start date is latest than end date")
 
         result = await self._repo.get_expenses_by_category_and_date(
             user.id,
-            category_id,
-            date_from,
-            date_to
-        )
-        await self.delay_raport_generate(
-            user,
             category_id,
             date_from,
             date_to
@@ -95,45 +85,47 @@ class ExpensesService:
     async def delay_raport_generate(self,
             user: Users,
             category_id: int,
-            date_from: datetime,
-            date_to: datetime
+            date_from: date,
+            date_to: date
     ):
+        date_to, date_from = self.valid_chart_dates(date_from, date_to)
+        if category_id and not self._expense_categories_service.repo.exists(category_id):
+            category_id = None
+
+        raport_uuid = str(uuid.uuid4())
+        from app.celery_core.tasks.raport_tasks import generate_raport
+        generate_raport.apply_async(
+            args = [raport_uuid, user.id,category_id,date_from,date_to],
+            headers = {
+                "user_id" : user.id,
+                "params" : {
+                    "raport_uuid": raport_uuid,
+                    "category_id": category_id,
+                    "date_from": date_from.isoformat(),
+                    "date_to": date_to.isoformat()
+                }
+            }
+        )
+        return {"raport_uuid" : raport_uuid}
+
+    async def download_raport(self, user: Users, raport_uuid: str):
+        raport_entity = await self._repo.check_raport_belongs_user(user.id, raport_uuid)
+        if not raport_entity:
+            raise HTTPException(status_code=404, detail="Raport not found")
+        if raport_entity.status != TaskStatus.DONE:
+            raise HTTPException(status_code=202, detail="Raport still generating")
+        return FileResponse(
+            path=f"{settings.DASHBOARD_RAPORTS_PATH}/{raport_uuid}.pdf",
+            filename="raport.pdf",
+            media_type="application/pdf"
+        )
+
+
+    def valid_chart_dates(self,date_from: date,date_to: date):
         if date_from > date_to:
             raise ValueError("Start date is latest than end date")
         if date_to is None:
             date_to = datetime.now()
         if date_from is None:
             date_from = date_to - timedelta(weeks=8)
-        if category_id and not self._expense_categories_service.repo.exists(category_id):
-            category_id = None
-
-        result = await self._repo.get_expenses_by_category_and_date(
-            user.id,
-            category_id,
-            date_from,
-            date_to
-        )
-
-        from app.celery_core.tasks.raport_tasks import generate_raport
-        task = generate_raport.delay(
-            user.id,
-            category_id,
-            data = [
-                {
-                    "date":row.date,
-                    "amount":row.amount
-                }
-                for row in result
-            ]
-        )
-        await save_task(
-            task_id=task.id,
-            user_id= user.id,
-            task_type= "DASHBOARD_RAPORT",                   # jakies repo na typy, glowny slownik
-            params = {
-                "category_id":category_id,
-                "date_from":date_from.isoformat(),
-                "date_to":date_to.isoformat()
-            }
-        )
-        return RaportGenerateResponse(task_id=task.id)
+        return date_to, date_from

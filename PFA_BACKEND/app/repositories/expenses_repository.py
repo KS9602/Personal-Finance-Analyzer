@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import List
 
 from app.repositories.base_repository import BaseRepository
-from app.models.models import Expenses, Users
+from app.models.models import Expenses, Users, DashboardRaport, CeleryTask
 from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
 import logging
@@ -48,3 +48,20 @@ class ExpensesRepository(BaseRepository[Expenses]):
 
         result = await self.session.execute(stmt)
         return result.all()
+
+    async def check_raport_belongs_user(self, user_id: int, uuid: str) -> DashboardRaport:
+        stmt = (
+            select(CeleryTask)
+            .join(DashboardRaport, CeleryTask.task_id == DashboardRaport.task_id)
+            .where(
+                DashboardRaport.uuid == uuid,
+                CeleryTask.user_id == user_id
+            )
+        )
+        result = await self.session.execute(stmt)
+        return result.scalar_one_or_none()
+
+    async def get_raport_path(self, uuid: str):
+        stmt = (select(
+
+        ))

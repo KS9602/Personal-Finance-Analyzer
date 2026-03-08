@@ -1,17 +1,23 @@
-from typing import Any
+from datetime import datetime
+
 
 from app.celery_core.celery_app import celery_app
-import time
+from app.celery_core.utils import BaseTask
+from app.services.internal_services.dashboard_raport_service import DashboardReportService
 
-from app.services.chart_builder_service import create_chart, build_pdf
 
 
-@celery_app.task(bind=True, max_retries=3)
-async def generate_raport(self, user_id: str, category_id: int, data: list[dict[str, Any]]):
+@celery_app.task(bind=True, base=BaseTask ,max_retries=3)
+def generate_raport(
+        self,
+        raport_uuid: str,
+        user_id: int,
+        category_id: int,
+        date_from: datetime,
+        date_to: datetime
+):
     try:
-        user_data = None
-        chart_data = None
-        table_data = None
-        build_pdf(user_data, category_id, chart_data, table_data)
+        dashboard_raport_service = DashboardReportService(self.session)
+        dashboard_raport_service.build_raport(self.task_id, raport_uuid, user_id, category_id, date_from, date_to)
     except Exception as exc:
         raise self.retry(exc=exc, countdown=5)

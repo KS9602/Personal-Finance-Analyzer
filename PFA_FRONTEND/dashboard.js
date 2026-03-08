@@ -66,7 +66,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (!response.ok) {
                     throw new Error("Błąd usuwania");
                 }
-                
+
                 await getUserExpenses(currentPage);
 
             } catch (err) {
@@ -74,6 +74,95 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
     });
+
+
+
+    const generateReportBtn = document.getElementById("generateReportBtn");
+
+    generateReportBtn.addEventListener("click", async () => {
+
+        const categoryId = document.getElementById("chartCategory").value;
+        const dateFrom = document.getElementById("chartDateFrom").value;
+        const dateTo = document.getElementById("chartDateTo").value;
+
+        const params = new URLSearchParams();
+
+        if (categoryId) params.append("category_id", categoryId);
+        if (dateFrom) params.append("date_from", dateFrom);
+        if (dateTo) params.append("date_to", dateTo);
+
+        try {
+
+            const response = await fetch(
+                `/api/v1/dashboard/generate_raport?${params.toString()}`,
+                { credentials: "include" }
+            );
+
+            if (!response.ok) {
+                console.error("Błąd generowania raportu");
+                return;
+            }
+
+            const data = await response.json();
+
+            const raportUUID = data.raport_uuid;
+            console.log(data)
+            console.log(raportUUID)
+            startReportPolling(raportUUID);
+
+        } catch (err) {
+            console.error("Błąd:", err);
+        }
+
+    });
+
+
+    function startReportPolling(raportUUID) {
+
+        const interval = setInterval(async () => {
+
+            try {
+
+                const response = await fetch(
+                    `/api/v1/dashboard/download_dashboard_raport?raport_uuid=${raportUUID}`,
+                    {
+                        credentials: "include"
+                    }
+                );
+                if (response.status === 202) {
+                    return;
+                }
+
+                if (response.status === 200) {
+
+                    const blob = await response.blob();
+                    const url = window.URL.createObjectURL(blob);
+
+                    const a = document.createElement("a");
+                    a.href = url;
+                    a.download = "raport.pdf";
+
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+
+                    clearInterval(interval);
+
+                }
+
+            } catch (err) {
+                console.error("Polling error:", err);
+            }
+
+        }, 2000);
+    }
+
+
+    generateReportBtn.disabled = true;
+    generateReportBtn.textContent = "Generowanie...";
+
+    generateReportBtn.disabled = false;
+    generateReportBtn.textContent = "Generuj raport";
 
 
     logoutBtn.addEventListener("click", () => {

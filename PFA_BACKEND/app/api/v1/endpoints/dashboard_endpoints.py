@@ -6,10 +6,11 @@ from app.schemas.expense_categories_schemas import ExpenseCategoriesBase
 from fastapi import Query
 import logging
 
-from app.schemas.expense_scheams import ExpenseDataPage, ExpenseCreate, ExpenseBase
+from app.schemas.expense_scheams import ExpenseDataPage, ExpenseCreate, ExpenseBase, DashboardChartResponse, \
+    RaportGenerateResponse
 from app.auth.utils_auth import authenticated
 from app.core.dependencies import CurrentUserDP, ExpensesDP, ExpensesCategoriesDP
-
+from starlette.responses import FileResponse
 
 log = logging.getLogger(__name__)
 
@@ -59,14 +60,14 @@ async def delete_expense(
     await expense_serivce.delete_expense(user, expense_id)
 
 
-@router.get("/user_chart")
+@router.get("/user_chart", response_model=DashboardChartResponse)
 @authenticated
 async def dashboard_user_chart(
         user: CurrentUserDP,
         expense_serivce: ExpensesDP,
         category_id: Optional[int] = Query(None),
-        date_from: Optional[date] = Query(None),
-        date_to: Optional[date] = Query(None),
+        date_from: Optional[date] = Query(...),
+        date_to: Optional[date] = Query(...),
 ):
     return await expense_serivce.expense_chart(
         user,
@@ -75,13 +76,14 @@ async def dashboard_user_chart(
         date_to
     )
 
-@router.get("/generate_raport")
+@router.get("/generate_raport", response_model=RaportGenerateResponse)
+@authenticated
 async def generate_raport(
         user: CurrentUserDP,
         expense_serivce: ExpensesDP,
         category_id: Optional[int] = Query(None),
-        date_from: Optional[date] = Query(None),
-        date_to: Optional[date] = Query(None)
+        date_from: Optional[date] = Query(...),
+        date_to: Optional[date] = Query(...)
 ):
     return await expense_serivce.delay_raport_generate(
         user,
@@ -89,3 +91,12 @@ async def generate_raport(
         date_from,
         date_to
     )
+
+@router.get("/download_dashboard_raport", response_class=FileResponse)
+@authenticated
+async def download_dashboard_raport(
+        user: CurrentUserDP,
+        expense_serivce: ExpensesDP,
+        raport_uuid: Optional[str] = Query(...),
+):
+    return await expense_serivce.download_raport(user, raport_uuid)

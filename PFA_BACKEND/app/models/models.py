@@ -1,7 +1,17 @@
-from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Double
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Double, UUID
 from sqlalchemy.dialects.postgresql import JSONB
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.models.base import Base
+from sqlalchemy import Enum as SQLEnum
+from enum import Enum
+
+class TaskStatus(str, Enum):
+    PENDING = "PENDING"
+    PROCESSING = "PROCESSING"
+    DONE = "DONE"
+    FAILED = "FAILED"
+    RETRY = "RETRY"
+
 
 class Users(Base):
     __tablename__ = "users"
@@ -10,7 +20,7 @@ class Users(Base):
     keycloak_id = Column(String(50), unique=True, index=True, nullable=False)
 
     expenses = relationship("Expenses", back_populates="user", cascade="all, delete-orphan")
-    celery_tasks = relationship("CeleryTaskStatus", back_populates="user")
+    celery_tasks = relationship("CeleryTask", back_populates="user")
 
 class Expenses(Base):
     __tablename__ = "expenses"
@@ -35,14 +45,29 @@ class ExpenseCategories(Base):
     expense = relationship("Expenses", back_populates="expense_category", cascade="all, delete-orphan")
 
 
-class CeleryTaskStatus(Base):
-    __tablename__ = "dashboard_raport_generate_status"
+class CeleryTask(Base):
+    __tablename__ = "celery_task"
 
     id = Column(Integer, autoincrement=True, primary_key=True, index=True)
-    task_id = Column(String(36), nullable=False)
+    task_id = Column(String(36), nullable=False, unique=True)
     user_id = Column(Integer,ForeignKey("users.id", ondelete="CASCADE"), nullable=False, index=True)
     task_type = Column(String(50), nullable=False)
-    status = Column(String(10), nullable=False)
-    params = Column(JSONB)
+    status: Mapped[TaskStatus] = mapped_column(
+        SQLEnum(TaskStatus, name="task_status"),
+        default=TaskStatus.PENDING
+    )
+    einfo = Column(String(4000), nullable=True)
+
+    params = Column(JSONB, nullable=True)
 
     user = relationship("Users", back_populates="celery_tasks")
+
+
+class DashboardRaport(Base):
+    __tablename__ = "dashboard_raport"
+
+    id = Column(Integer, autoincrement=True, primary_key=True, index=True)
+    task_id = Column(String(36),ForeignKey("celery_task.task_id", ondelete="CASCADE"), nullable=False, index=True)
+    uuid = Column(UUID(as_uuid=True), nullable=False)
+
+    task = relationship("CeleryTask")

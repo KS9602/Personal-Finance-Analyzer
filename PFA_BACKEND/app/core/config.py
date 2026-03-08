@@ -32,6 +32,8 @@ class Setting(BaseSettings):
 
     CELERY_BROKER_URL: str = "123123123121111111111111111111111111111111111111111111111111"
 
+    DASHBOARD_RAPORTS_PATH: str = "raports/pdf"
+
     CORS_ORIGINS: List[str] = [
         "http://localhost:8080",
         "http://keycloak:8080",
@@ -42,8 +44,11 @@ class Setting(BaseSettings):
         return f"redis://{self.REDIS_HOST}:{self.REDIS_PORT}"
 
     @property
-    def DB_URL(self) -> str:
+    def DB_URL_ASYNC(self) -> str:
         return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+    @property
+    def DB_URL_SYNC(self) -> str:
+        return f"postgresql+psycopg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
 
     @property
     def TOKEN_URL(self) -> str:

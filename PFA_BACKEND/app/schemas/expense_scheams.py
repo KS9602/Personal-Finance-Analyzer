@@ -65,4 +65,4 @@ class DashboardChartResponse(BaseModel):
 
 
 class RaportGenerateResponse(BaseModel):
-    task_id: str
+    raport_uuid: str
