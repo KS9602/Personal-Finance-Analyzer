@@ -1,12 +1,13 @@
 
 from app.models.models import Users
-from app.repositories.users_repository import UsersRepository
+from app.repositories.interfaces.IUsersRepository import IUsersRepository
+
 import logging
 
 log = logging.getLogger(__name__)
 
 class UsersService:
-    def __init__(self,users_repository: UsersRepository):
+    def __init__(self,users_repository: IUsersRepository):
         self.users_repository = users_repository
 
     async def get_if_exist_or_create(self, sub: str) -> Users:

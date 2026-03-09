@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, update, delete, func, Select
-from typing import Generic, TypeVar, Type, List, Optional, Any
+from sqlalchemy import select, update, delete, func
+from typing import Generic, TypeVar, Type, Optional
 
 Model = TypeVar("Model")
 
@@ -11,12 +11,12 @@ class BaseRepository(Generic[Model]):
         self.session = session
 
 
-    async def get_all_by_user(self, user_id: str) -> List[Model]:
+    async def get_all_by_user(self, user_id: int) -> list[Model]:
         stmt = (select(self.model).where(self.model.user_id == user_id))
         result = await self.session.execute(stmt)
         return result.scalars().all()
 
-    async def get_all_by_user_page(self,user_id: int, page: int, size: int) -> List[Model]:
+    async def get_all_by_user_page(self,user_id: int, page: int, size: int) -> list[Model]:
         stmt = (select(self.model)
                 .where(self.model.user_id == user_id)
                 .order_by(self.model.id.desc())
@@ -42,7 +42,7 @@ class BaseRepository(Generic[Model]):
     async def get_by_id(self, entity_id: int) -> Optional[Model]:
         return await self.session.get(self.model, entity_id)
 
-    async def get_all(self) -> List[Model]:
+    async def get_all(self) -> list[Model]:
         result = await self.session.execute(select(self.model))
         return result.scalars().all()
 
@@ -55,7 +55,7 @@ class BaseRepository(Generic[Model]):
         await self.session.refresh(entity)
         return entity
 
-    async def add_many(self, entities: List[Model]) -> List[Model]:
+    async def add_many(self, entities: list[Model]) -> list[Model]:
         self.session.add_all(entities)
         await self.session.commit()
         return entities

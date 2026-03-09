@@ -1,6 +1,10 @@
 from datetime import datetime, date
 from math import ceil
 import uuid
+from asyncpg.pgproto.pgproto import timedelta
+from fastapi import HTTPException
+from starlette.responses import FileResponse
+
 
 from app.core.config import settings
 from app.exceptions.exceptions import AuthorizationException
@@ -12,20 +16,21 @@ from app.schemas.expense_scheams import (
     ExpenseCharData,
     DashboardChartResponse,
 )
+from app.services.api_services.expense_categories_service import ExpenseCategoriesService
+from app.repositories.interfaces.IExpensesRepository import IExpenseRepository
+
 
 import logging
 
-from app.services.api_services.expense_categories_service import ExpenseCategoriesService
-from asyncpg.pgproto.pgproto import timedelta
-from fastapi import HTTPException
-from starlette.responses import FileResponse
+
 
 log = logging.getLogger(__name__)
 
 
 
+
 class ExpensesService:
-    def __init__(self,repo: ExpensesRepository, expense_categories_service: ExpenseCategoriesService):
+    def __init__(self,repo: IExpenseRepository, expense_categories_service: ExpenseCategoriesService):
         self._repo = repo
         self._expense_categories_service = expense_categories_service
 
@@ -59,8 +64,8 @@ class ExpensesService:
             self,
             user: Users,
             category_id: int,
-            date_from: datetime,
-            date_to: datetime
+            date_from: date,
+            date_to: date
     ):
         date_to, date_from = self.valid_chart_dates(date_to, date_from)
         if category_id and not await self._expense_categories_service.repo.exists(category_id):

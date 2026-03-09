@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date
 from typing import List
 
 from app.repositories.base_repository import BaseRepository
@@ -30,8 +30,8 @@ class ExpensesRepository(BaseRepository[Expenses]):
             self,
             user_id: int,
             category: str | None,
-            date_scope_start: datetime,
-            date_scope_end: datetime
+            date_scope_start: date,
+            date_scope_end: date
     ):
         stmt = (
             select(

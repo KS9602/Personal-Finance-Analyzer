@@ -1,5 +1,8 @@
 from app.exceptions.exceptions import AuthorizationException
 from app.models import Users
+from app.repositories.interfaces.IExpenseCategoriesRepository import IExpenseCategoriesRepository
+from app.repositories.interfaces.IExpensesRepository import IExpenseRepository
+from app.repositories.interfaces.IUsersRepository import IUsersRepository
 from fastapi import Depends, Request
 from typing import Annotated
 from redis.asyncio import Redis
@@ -27,26 +30,26 @@ def get_redis_service(redis = Depends(get_redis)) -> RedisService:
 
 
 
-def get_users_repository(db = Depends(get_db)) -> UsersRepository:
+def get_users_repository(db = Depends(get_db)) -> IUsersRepository:
     return UsersRepository(db)
 
-def get_users_service(users_repository: UsersRepository = Depends(get_users_repository)) -> UsersService:
+def get_users_service(users_repository: IUsersRepository = Depends(get_users_repository)) -> UsersService:
     return UsersService(users_repository)
 
-def get_expense_categories_repository(db = Depends(get_db)) -> ExpenseCategoriesRepository:
+def get_expense_categories_repository(db = Depends(get_db)) -> IExpenseCategoriesRepository:
     return ExpenseCategoriesRepository(db)
 
-def get_expense_categories_service(expense_categories_repository: ExpenseCategoriesRepository = Depends(get_expense_categories_repository))\
+def get_expense_categories_service(expense_categories_repository: IExpenseCategoriesRepository = Depends(get_expense_categories_repository))\
         -> ExpenseCategoriesService:
     return ExpenseCategoriesService(expense_categories_repository)
 
 
 
-def get_expenses_repository(db = Depends(get_db)) -> ExpensesRepository:
+def get_expenses_repository(db = Depends(get_db)) -> IExpenseRepository:
     return ExpensesRepository(db)
 
 def get_expenses_service(
-        expenses_repository: ExpensesRepository = Depends(get_expenses_repository),
+        expenses_repository: IExpenseRepository = Depends(get_expenses_repository),
         expense_categories_service: ExpenseCategoriesService = Depends(get_expense_categories_service)
                          ) -> ExpensesService:
     return ExpensesService(expenses_repository, expense_categories_service)
