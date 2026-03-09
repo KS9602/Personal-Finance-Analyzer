@@ -6,8 +6,14 @@ from app.schemas.expense_categories_schemas import ExpenseCategoriesBase
 from fastapi import Query
 import logging
 
-from app.schemas.expense_scheams import ExpenseDataPage, ExpenseCreate, ExpenseBase, DashboardChartResponse, \
-    RaportGenerateResponse
+from app.schemas.expense_scheams import (
+    ExpenseDataPage,
+    ExpenseCreate,
+    ExpenseBase,
+    DashboardChartResponse,
+    ReportGenerateResponse,
+    DashboardDataCommand
+)
 from app.auth.utils_auth import authenticated
 from app.core.dependencies import CurrentUserDP, ExpensesDP, ExpensesCategoriesDP
 from starlette.responses import FileResponse
@@ -69,34 +75,36 @@ async def dashboard_user_chart(
         date_from: Optional[date] = Query(...),
         date_to: Optional[date] = Query(...),
 ):
-    return await expense_serivce.expense_chart(
-        user,
-        category_id,
-        date_from,
-        date_to
+    command = DashboardDataCommand(
+        user_id=user.id,
+        category_id=category_id,
+        date_from=date_from,
+        date_to=date_to
     )
+    return await expense_serivce.expense_chart(command)
 
-@router.get("/generate_raport", response_model=RaportGenerateResponse)
+@router.get("/generate_report", response_model=ReportGenerateResponse)
 @authenticated
-async def generate_raport(
+async def generate_report(
         user: CurrentUserDP,
         expense_serivce: ExpensesDP,
         category_id: Optional[int] = Query(None),
         date_from: Optional[date] = Query(...),
         date_to: Optional[date] = Query(...)
 ):
-    return await expense_serivce.delay_raport_generate(
-        user,
-        category_id,
-        date_from,
-        date_to
+    command = DashboardDataCommand(
+        user_id=user.id,
+        category_id=category_id,
+        date_from=date_from,
+        date_to=date_to
     )
+    return await expense_serivce.delay_report_generate(command)
 
-@router.get("/download_dashboard_raport", response_class=FileResponse)
+@router.get("/download_dashboard_report", response_class=FileResponse)
 @authenticated
-async def download_dashboard_raport(
+async def download_dashboard_report(
         user: CurrentUserDP,
         expense_serivce: ExpensesDP,
-        raport_uuid: Optional[str] = Query(...),
+        report_uuid: Optional[str] = Query(...),
 ):
-    return await expense_serivce.download_raport(user, raport_uuid)
+    return await expense_serivce.download_report(user, report_uuid)

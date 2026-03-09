@@ -28,4 +28,4 @@ celery_app.conf.update(
 celery_app.autodiscover_tasks([
     "app.celery_core.tasks"
 ])
-import app.celery_core.tasks.raport_tasks
+import app.celery_core.tasks.report_tasks

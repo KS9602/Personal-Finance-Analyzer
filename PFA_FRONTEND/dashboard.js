@@ -94,7 +94,7 @@ document.addEventListener("DOMContentLoaded", () => {
         try {
 
             const response = await fetch(
-                `/api/v1/dashboard/generate_raport?${params.toString()}`,
+                `/api/v1/dashboard/generate_report?${params.toString()}`,
                 { credentials: "include" }
             );
 
@@ -105,10 +105,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
             const data = await response.json();
 
-            const raportUUID = data.raport_uuid;
+            const reportUUID = data.report_uuid;
             console.log(data)
-            console.log(raportUUID)
-            startReportPolling(raportUUID);
+            console.log(reportUUID)
+            startReportPolling(reportUUID);
 
         } catch (err) {
             console.error("Błąd:", err);
@@ -117,14 +117,14 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
 
-    function startReportPolling(raportUUID) {
+    function startReportPolling(reportUUID) {
 
         const interval = setInterval(async () => {
 
             try {
 
                 const response = await fetch(
-                    `/api/v1/dashboard/download_dashboard_raport?raport_uuid=${raportUUID}`,
+                    `/api/v1/dashboard/download_dashboard_report?report_uuid=${reportUUID}`,
                     {
                         credentials: "include"
                     }

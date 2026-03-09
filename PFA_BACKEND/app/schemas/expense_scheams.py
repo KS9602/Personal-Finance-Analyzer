@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, date, timedelta
 from typing import List
 
 from pydantic import BaseModel, model_validator
@@ -64,5 +64,22 @@ class DashboardChartResponse(BaseModel):
     data: List[ExpenseCharData]
 
 
-class RaportGenerateResponse(BaseModel):
-    raport_uuid: str
+class ReportGenerateResponse(BaseModel):
+    report_uuid: str
+
+class DashboardDataCommand(BaseModel):
+    user_id: int
+    category_id: int | None
+    date_from: date
+    date_to: date
+
+    @model_validator(mode="after")
+    def valid_chart_dates(self):
+        if self.date_from > self.date_to:
+            raise ValueError("Start date is latest than end date")
+        if self.date_to is None:
+            self.date_to = datetime.now()
+        if self.date_from is None:
+            self.date_from = self.date_to - timedelta(weeks=8)
+
+

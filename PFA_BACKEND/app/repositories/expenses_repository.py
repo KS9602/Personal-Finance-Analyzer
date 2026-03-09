@@ -2,7 +2,8 @@ from datetime import datetime, date
 from typing import List
 
 from app.repositories.base_repository import BaseRepository
-from app.models.models import Expenses, Users, DashboardRaport, CeleryTask
+from app.models.models import Expenses, Users, DashboardReport, CeleryTask
+from app.schemas.expense_scheams import DashboardDataCommand
 from sqlalchemy import select, func
 from sqlalchemy.orm import selectinload
 import logging
@@ -28,40 +29,33 @@ class ExpensesRepository(BaseRepository[Expenses]):
 
     async def get_expenses_by_category_and_date(
             self,
-            user_id: int,
-            category: str | None,
-            date_scope_start: date,
-            date_scope_end: date
+            cmd: DashboardDataCommand,
     ):
         stmt = (
             select(
                 self.model.date,
                 func.sum(self.model.amount).label("amount")
                 )
-                .where(self.model.user_id == user_id)
-                .where(self.model.date.between(date_scope_start,date_scope_end))
+                .where(self.model.user_id == cmd.user_id)
+                .where(self.model.date.between(cmd.date_from,cmd.date_to))
                 .group_by(self.model.date)
                 .order_by(self.model.date.asc())
             )
-        if category:
-            stmt = stmt.where(self.model.category_id == category)
+        if cmd.category_id:
+            stmt = stmt.where(self.model.category_id == cmd.category_id)
 
         result = await self.session.execute(stmt)
         return result.all()
 
-    async def check_raport_belongs_user(self, user_id: int, uuid: str) -> DashboardRaport:
+    async def check_report_belongs_user(self, user_id: int, uuid: str) -> DashboardReport:
         stmt = (
             select(CeleryTask)
-            .join(DashboardRaport, CeleryTask.task_id == DashboardRaport.task_id)
+            .join(DashboardReport, CeleryTask.task_id == DashboardReport.task_id)
             .where(
-                DashboardRaport.uuid == uuid,
+                DashboardReport.uuid == uuid,
                 CeleryTask.user_id == user_id
             )
         )
         result = await self.session.execute(stmt)
         return result.scalar_one_or_none()
 
-    async def get_raport_path(self, uuid: str):
-        stmt = (select(
-
-        ))

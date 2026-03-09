@@ -32,7 +32,7 @@ class Setting(BaseSettings):
 
     CELERY_BROKER_URL: str = "123123123121111111111111111111111111111111111111111111111111"
 
-    DASHBOARD_RAPORTS_PATH: str = "raports/pdf"
+    DASHBOARD_REPORTS_PATH: str = "reports/pdf"
 
     CORS_ORIGINS: List[str] = [
         "http://localhost:8080",

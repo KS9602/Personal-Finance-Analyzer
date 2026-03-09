@@ -8,7 +8,7 @@ from sqlalchemy import select
 
 
 class TaskNames(str, Enum):
-    DASHBOARD_RAPORT = "DASHBOARD_RAPORT"
+    DASHBOARD_REPORT = "DASHBOARD_REPORT"
 
 
 async def save_task(task_id: int, user_id: int, task_type: str, params=None) -> None:

@@ -63,8 +63,8 @@ class CeleryTask(Base):
     user = relationship("Users", back_populates="celery_tasks")
 
 
-class DashboardRaport(Base):
-    __tablename__ = "dashboard_raport"
+class DashboardReport(Base):
+    __tablename__ = "dashboard_report"
 
     id = Column(Integer, autoincrement=True, primary_key=True, index=True)
     task_id = Column(String(36),ForeignKey("celery_task.task_id", ondelete="CASCADE"), nullable=False, index=True)
