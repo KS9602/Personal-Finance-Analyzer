@@ -1,19 +1,9 @@
-! Aplikacja w trakcie budowy
+PFA (Personal Finance App) to aplikacja służąca do zarządzania wydatkami użytkownika. Logika biznesowa jest stosunkowo prosta – projekt powstał głównie w celu zaprezentowania moich umiejętności w projektowaniu aplikacji backendowych.
 
-Aplikacja będzie miala generator wyciągów bankowych oraz modul do analizy wydatków, tworzenia wykresow itd.
+Aplikacja ma asynchroniczny backend napisany w fastapi oraz prosty frontend napisany w js (frontend jest symboliczny, wygenerowany glownie przez AI). System jest zintegrowany z Keycloak, a w projekcie zaimplementowałem własną logikę obsługi JWT.
 
-Planuję użyć streamlita jako prosty frontend, oraz fastapi na backendzie.
-Technologie:
-    Fastapi
-    Streamlit
-    Keycloak
-    Nginx
-    Redis
-    Postgres
+Do przechowywania sesji oraz tokenów wykorzystywany jest Redis, natomiast główną bazą danych jest PostgreSQL.
 
-W przyszlosci wykorzystam również:
-    celery,
-    rabbitmq,
-    haproxy
-    elastisearch
+Aplikacja posiada również asynchroniczny moduł generowania raportów dzialający w celery (rabbitmq jako broker)
 
+Aplikcja jest stale rozwijana Testy są w drodze
