@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Integer, String, ForeignKey, DateTime, Double, UUID
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import JSON
 from sqlalchemy.orm import relationship, Mapped, mapped_column
 from app.models.base import Base
 from sqlalchemy import Enum as SQLEnum
@@ -58,7 +58,7 @@ class CeleryTask(Base):
     )
     einfo = Column(String(4000), nullable=True)
 
-    params = Column(JSONB, nullable=True)
+    params = Column(JSON, nullable=True)
 
     user = relationship("Users", back_populates="celery_tasks")
 

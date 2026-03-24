@@ -41,7 +41,7 @@ class ExpensesRepository(BaseRepository[Expenses]):
                 .group_by(self.model.date)
                 .order_by(self.model.date.asc())
             )
-        if cmd.category_id:
+        if cmd.category_id is not None:
             stmt = stmt.where(self.model.category_id == cmd.category_id)
 
         result = await self.session.execute(stmt)

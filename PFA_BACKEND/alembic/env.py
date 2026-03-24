@@ -1,4 +1,5 @@
 import asyncio
+import os
 from logging.config import fileConfig
 # from app.utils.lgging import fileConfig
 
@@ -14,10 +15,12 @@ target_metadata = Base.metadata
 
 # config
 config = context.config
-config.set_main_option("sqlalchemy.url",settings.DB_URL_ASYNC)
+
+db_url = settings.DB_URL_ASYNC
+
+config.set_main_option("sqlalchemy.url",db_url)
 fileConfig(config.config_file_name)
 
-DATABASE_URL = settings.DB_URL_ASYNC
 
 def do_run_migrations(connection: Connection):
     context.configure(connection=connection, target_metadata=target_metadata)
@@ -26,7 +29,7 @@ def do_run_migrations(connection: Connection):
 
 
 async def run_migrations():
-    connectable = create_async_engine(DATABASE_URL, poolclass=pool.NullPool)
+    connectable = create_async_engine(db_url, poolclass=pool.NullPool)
 
     async with connectable.begin() as connection:
         await connection.run_sync(do_run_migrations)
@@ -35,7 +38,7 @@ async def run_migrations():
 
 
 if context.is_offline_mode():
-    context.configure(url=DATABASE_URL, target_metadata=target_metadata, literal_binds=True)
+    context.configure(url=db_url, target_metadata=target_metadata, literal_binds=True)
     with context.begin_transaction():
         context.run_migrations()
 else:

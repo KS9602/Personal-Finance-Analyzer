@@ -1,6 +1,7 @@
 volumes:
   db_data:
   keycloak_data:
+  test_db_data:
 
 networks:
   backend:
@@ -70,9 +71,20 @@ services:
     environment:  
       POSTGRES_DB: ${PFA_DB_NAME}                
       POSTGRES_USER: ${PFA_DB_USER}             
-      POSTGRES_PASSWORD: ${PFA_DB_PASSWORD}            
+      POSTGRES_PASSWORD: ${PFA_DB_PASSWORD}
     volumes:
       - db_data:/var/lib/postgresql/data
+    networks:
+      - backend
+
+  postgres_test:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: db_test
+      POSTGRES_USER: test
+      POSTGRES_PASSWORD: test
+    volumes:
+      - test_db_data:/var/lib/postgresql/data
     networks:
       - backend
 
@@ -80,14 +92,15 @@ services:
     build: ./PFA_BACKEND
     container_name: pfa
     environment:
-      DB_USER: ${PFA_DB_USER}            
-      DB_PASSWORD: ${PFA_DB_PASSWORD}          
-      DB_HOST: ${PFA_DB_HOST}            
-      DB_PORT: 5432            
-      DB_NAME: ${PFA_DB_NAME}        
-      PFA_BACKEND_SECRET: ${PFA_BACKEND_SECRET}    
+      DB_USER: ${PFA_DB_USER}
+      DB_PASSWORD: ${PFA_DB_PASSWORD}
+      DB_HOST: ${PFA_DB_HOST}
+      DB_PORT: 5432
+      DB_NAME: ${PFA_DB_NAME}
+      PFA_BACKEND_SECRET: ${PFA_BACKEND_SECRET}
       PFA_BACKEND_CLIENT_SECRET: ${PFA_BACKEND_CLIENT_SECRET}
-      CELERY_BROKER_URL: amqp://admin:admin@rabbitmq:5672//   # wywalic do envow
+      CELERY_BROKER_URL: amqp://admin:admin@rabbitmq:5672//
+      TEST_DATABASE_URL: postgresql+asyncpg://test:test@postgres_test:5432/db_test
     ports:
       - "8000:8000"
     depends_on:

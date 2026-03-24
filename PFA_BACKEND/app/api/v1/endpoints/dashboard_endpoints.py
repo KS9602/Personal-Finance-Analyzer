@@ -1,11 +1,13 @@
 from datetime import date
 from typing import Optional
+from starlette.responses import FileResponse
 
-from app.auth.auth_api_route import AuthApiRouter
-from app.schemas.expense_categories_schemas import ExpenseCategoriesBase
 from fastapi import Query
 import logging
-
+from app.auth.auth_api_route import AuthApiRouter
+from app.schemas.expense_categories_schemas import ExpenseCategoriesBase
+from app.auth.utils_auth import authenticated
+from app.core.dependencies import CurrentUserDP, ExpensesDP, ExpensesCategoriesDP
 from app.schemas.expense_scheams import (
     ExpenseDataPage,
     ExpenseCreate,
@@ -14,9 +16,7 @@ from app.schemas.expense_scheams import (
     ReportGenerateResponse,
     DashboardDataCommand
 )
-from app.auth.utils_auth import authenticated
-from app.core.dependencies import CurrentUserDP, ExpensesDP, ExpensesCategoriesDP
-from starlette.responses import FileResponse
+
 
 log = logging.getLogger(__name__)
 

@@ -1,5 +1,3 @@
-import os
-
 from app.db.connection import SessionLocal
 from celery import Celery
 
@@ -8,14 +6,10 @@ from app.celery_core.utils import BaseTask
 
 BaseTask.sessionmaker = SessionLocal
 
-broker_url = os.getenv(
-    "CELERY_BROKER_URL",
-    settings.CELERY_BROKER_URL
-)
 
 celery_app = Celery(
     "worker",
-    broker=broker_url,
+    broker=settings.CELERY_BROKER_URL,
 )
 
 celery_app.conf.update(

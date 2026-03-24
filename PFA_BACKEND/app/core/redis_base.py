@@ -22,7 +22,7 @@ class RedisClient:
 
     async def disconnect(self) -> None:
         if self.client:
-            await self.client.close()
+            await self.client.aclose()
         if self.pool:
             await self.pool.disconnect()
         log.info("Redis DWON")

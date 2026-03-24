@@ -30,7 +30,7 @@ class Setting(BaseSettings):
     REDIS_EXPIRE_SEC: int = 3600
     CODE_VERIFIER_EXP: int = 300
 
-    CELERY_BROKER_URL: str = "123123123121111111111111111111111111111111111111111111111111"
+    CELERY_BROKER_URL: str
 
     DASHBOARD_REPORTS_PATH: str = "reports/pdf"
 
@@ -45,7 +45,8 @@ class Setting(BaseSettings):
 
     @property
     def DB_URL_ASYNC(self) -> str:
-        return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        # return f"postgresql+asyncpg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
+        return "postgresql+asyncpg://test:test@postgres_test:5432/db_test"
     @property
     def DB_URL_SYNC(self) -> str:
         return f"postgresql+psycopg://{self.DB_USER}:{self.DB_PASSWORD}@{self.DB_HOST}:{self.DB_PORT}/{self.DB_NAME}"
