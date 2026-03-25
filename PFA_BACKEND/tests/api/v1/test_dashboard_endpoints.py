@@ -2,41 +2,12 @@ from datetime import  datetime
 
 import pytest
 from app.models.models import ExpenseCategories, Users, Expenses
+from asyncpg.pgproto.pgproto import timedelta
 from sqlalchemy import select, func
+from tests.base_test_class import BaseTestClass
 from tests.conftest import client
 
-class TestDashboard:
-
-    @pytest.fixture()
-    async def current_user(self, db_session):
-        user = await db_session.get(Users,1)
-        await db_session.refresh(user)
-        return user
-
-
-    @pytest.fixture
-    async def categories(self, db_session):
-        category1 = ExpenseCategories(name="Test1")
-        category2 = ExpenseCategories(name="Test2")
-
-        db_session.add_all([category1, category2])
-        await db_session.flush()
-
-        return category1, category2
-
-    @pytest.fixture
-    async def expenses(self, db_session, current_user, categories):
-        category1, category2 = categories
-        expenses = [
-            Expenses(id=1000,user_id=current_user.id, category_id=category1.id,description="Wydatek 1", date=datetime.now(), amount=10.5),
-            Expenses(id=1001,user_id=current_user.id, category_id=category1.id,description="Wydatek 2", date=datetime.now(), amount=15.5),
-            Expenses(id=1002,user_id=current_user.id, category_id=category2.id,description="Wydatek 3", date=datetime.now(), amount=105.5),
-        ]
-
-        db_session.add_all(expenses)
-        await db_session.flush()
-
-        return expenses
+class TestDashboard(BaseTestClass):
 
 
     @pytest.mark.asyncio
@@ -111,6 +82,42 @@ class TestDashboard:
         assert response.status_code == 307
 
 
-    #
-    # @pytest.mark.asyncio
-    # async def test_user_chart(self, client):
+
+    @pytest.mark.asyncio
+    async def test_user_chart(self, client, expenses, categories):
+        date_from = (datetime.now() - timedelta(days=1)).date()
+        date_to = (datetime.now() + timedelta(hours=1)).date()
+        category, _ = categories
+
+        respone = await client.get(
+            url="/api/v1/dashboard/user_chart",
+            params={
+                "category_id": category.id,
+                "date_from": date_from,
+                "date_to": date_to
+            }
+        )
+        data = respone.json()
+
+        assert respone.status_code == 200
+        assert len(data.get("data")) == 2
+
+
+    @pytest.mark.asyncio
+    async def test_user_chart_all_categories(self, client, expenses):
+        date_from = (datetime.now() - timedelta(days=1)).date()
+        date_to = (datetime.now() + timedelta(hours=1)).date()
+
+        respone = await client.get(
+            url="/api/v1/dashboard/user_chart",
+            params={
+                "date_from": date_from,
+                "date_to": date_to
+            }
+        )
+        data = respone.json()
+
+        assert respone.status_code == 200
+        assert len(data.get("data")) == 3
+
+

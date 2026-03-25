@@ -1,4 +1,4 @@
-from datetime import datetime, date
+from datetime import datetime, date, timedelta
 from typing import List
 
 from app.repositories.base_repository import BaseRepository
@@ -37,7 +37,8 @@ class ExpensesRepository(BaseRepository[Expenses]):
                 func.sum(self.model.amount).label("amount")
                 )
                 .where(self.model.user_id == cmd.user_id)
-                .where(self.model.date.between(cmd.date_from,cmd.date_to))
+                .where(self.model.date >= cmd.date_from)
+                .where(self.model.date < cmd.date_to + timedelta(days=1))
                 .group_by(self.model.date)
                 .order_by(self.model.date.asc())
             )
@@ -45,6 +46,7 @@ class ExpensesRepository(BaseRepository[Expenses]):
             stmt = stmt.where(self.model.category_id == cmd.category_id)
 
         result = await self.session.execute(stmt)
+
         return result.all()
 
     async def check_report_belongs_user(self, user_id: int, uuid: str) -> DashboardReport:

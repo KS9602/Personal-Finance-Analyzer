@@ -60,7 +60,7 @@ class ExpensesService:
         await self._repo.delete_by_id(expense_id)
 
     async def expense_chart(self, cmd: DashboardDataCommand):
-        if cmd.category_id and not self._expense_categories_service.repo.exists(cmd.category_id):
+        if cmd.category_id and not await self._expense_categories_service.repo.exists(cmd.category_id):
             cmd.category_id = None
         result = await self._repo.get_expenses_by_category_and_date(cmd)
         return DashboardChartResponse(

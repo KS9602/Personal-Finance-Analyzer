@@ -77,9 +77,4 @@ class DashboardDataCommand(BaseModel):
     def valid_chart_dates(self):
         if self.date_from > self.date_to:
             raise ValueError("Start date is latest than end date")
-        if self.date_to is None:
-            self.date_to = datetime.now()
-        if self.date_from is None:
-            self.date_from = self.date_to - timedelta(weeks=8)
-
-
+        return self
