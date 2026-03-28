@@ -51,17 +51,17 @@ class BaseRepository(Generic[Model]):
 
     async def add(self, entity: Model) -> Model:
         self.session.add(entity)
-        await self.session.commit()
+        await self.session.flush()
         await self.session.refresh(entity)
         return entity
 
     async def add_many(self, entities: list[Model]) -> list[Model]:
         self.session.add_all(entities)
-        await self.session.commit()
+        await self.session.flush()
         return entities
 
     async def update(self, entity: Model) -> Model:
-        await self.session.commit()
+        await self.session.flush()
         await self.session.refresh(entity)
         return entity
 
@@ -71,17 +71,18 @@ class BaseRepository(Generic[Model]):
             .where(self.model.id == entity_id)
             .values(**values)
         )
-        await self.session.commit()
+        await self.session.flush()
 
     async def delete(self, entity: Model) -> None:
         await self.session.delete(entity)
-        await self.session.commit()
+        await self.session.flush()
 
     async def delete_by_id(self, entity_id: int) -> None:
         await self.session.execute(
             delete(self.model)
             .where(self.model.id == entity_id)
         )
-        await self.session.commit()
+        await self.session.flush()
+
 
 

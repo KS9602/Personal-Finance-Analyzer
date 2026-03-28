@@ -45,7 +45,7 @@ class ExpensesService:
             total_pages = ceil(total / size)
         )
 
-    async def add_user_expense_response(self, user: Users, expense_create: ExpenseCreate) -> Expenses:
+    async def add_user_expense(self, user: Users, expense_create: ExpenseCreate) -> Expenses:
         expense_entity = Expenses(
             user_id = user.id,
             **expense_create.model_dump()

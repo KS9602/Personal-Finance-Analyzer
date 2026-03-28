@@ -54,7 +54,7 @@ async def add_expense(
         user: CurrentUserDP,
         expense_service: ExpensesDP
 ):
-    return await expense_service.add_user_expense_response(user, new_expense)
+    return await expense_service.add_user_expense(user, new_expense)
 
 @router.delete("/delete_expense/{expense_id}", status_code=204)
 @authenticated
